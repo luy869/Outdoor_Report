@@ -8,9 +8,9 @@ return array(
 		'type'        => 'mysqli',
 		'connection'  => array(
 			'hostname'   => 'db',
-			'database'   => 'fuelphp',
+			'database'   => 'outdoor',
 			'username'   => 'root',
-			'password'   => 'root',
+			'password'   => '3556',
 			'persistent' => false,
 		),
 		'identifier'   => '`',
