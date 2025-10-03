@@ -63,7 +63,7 @@ class Controller_Auth extends Controller_Template
 
 		// ログインフォームを表示
 		$this->template->title = 'ログイン';
-		$this->template->content = View::forge('auth/login');
+		$this->template->content = View::forge('auth/login_new');
 	}
 
 	/**
