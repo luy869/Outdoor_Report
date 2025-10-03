@@ -21,7 +21,7 @@ services:
       MYSQL_ROOT_PASSWORD: 3556
       MYSQL_DATABASE: outdoor
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - fuelphp-network
 
