@@ -8,7 +8,7 @@ return array(
 		'type'        => 'mysqli',
 		'connection'  => array(
 			'hostname'   => 'db',
-			'database'   => 'outdoor',
+			'database'   => 'outdoor_reports',
 			'username'   => 'root',
 			'password'   => '3556',
 			'persistent' => false,

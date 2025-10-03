@@ -1,58 +1,66 @@
 <?php
-/**
- * Fuel is a fast, lightweight, community driven PHP5 framework.
- *
- * @package    Fuel
- * @version    1.8
- * @author     Fuel Development Team
- * @license    MIT License
- * @copyright  2010 - 2016 Fuel Development Team
- * @link       http://fuelphp.com
- */
+class Controller_Welcome extends Controller {
 
-/**
- * The Welcome Controller.
- *
- * A basic controller example.  Has examples of how to set the
- * response body and status.
- *
- * @package  app
- * @extends  Controller
- */
-class Controller_Welcome extends Controller
-{
-	/**
-	 * The basic welcome message
-	 *
-	 * @access  public
-	 * @return  Response
-	 */
-	public function action_index()
-	{
-		echo "Hello World!"; exit;
-		// return Response::forge(View::forge('welcome/index'));
-	}
+    public function action_index() {
+        // ログインチェック
+        if (!Session::get('user_id')) {
+            Response::redirect('auth/login');
+        }
 
-	/**
-	 * A typical "Hello, Bob!" type example.  This uses a Presenter to
-	 * show how to use them.
-	 *
-	 * @access  public
-	 * @return  Response
-	 */
-	public function action_hello()
-	{
-		return Response::forge(Presenter::forge('welcome/hello'));
-	}
+        $username = Session::get('username');
+        $email = Session::get('email');
 
-	/**
-	 * The 404 action for the application.
-	 *
-	 * @access  public
-	 * @return  Response
-	 */
-	public function action_404()
-	{
-		return Response::forge(Presenter::forge('welcome/404'), 404);
-	}
+        echo "<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>ウェルカム</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        h1 { color: #333; }
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1>🎉 ウェルカム!</h1>
+        <div class='user-info'>
+            <p><strong>ログイン成功!</strong></p>
+            <p>ユーザー名: {$username}</p>
+            <p>メール: {$email}</p>
+        </div>
+        <a href='/auth/logout' class='btn'>ログアウト</a>
+    </div>
+</body>
+</html>";
+    }
 }
