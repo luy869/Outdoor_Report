@@ -19,7 +19,7 @@ services:
       dockerfile: docker/db/Dockerfile
     environment:
       MYSQL_ROOT_PASSWORD: 3556
-      MYSQL_DATABASE: outdoor
+      MYSQL_DATABASE: outdoor_reports
     ports:
       - "3307:3306"
     networks:
