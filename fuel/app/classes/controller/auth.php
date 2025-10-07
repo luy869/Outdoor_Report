@@ -26,7 +26,7 @@ class Controller_Auth extends Controller_Template
 		// 既にログイン済みの場合
 		if (Session::get('user_id'))
 		{
-			Response::redirect('welcome/index');
+			Response::redirect('report/index');
 		}
 
 		// POSTリクエストの場合
@@ -52,18 +52,24 @@ class Controller_Auth extends Controller_Template
 				Session::set('email', $user['email']);
 				
 				Session::set_flash('success', 'ログインに成功しました!');
-				Response::redirect('welcome/index');
+				
+				// リファラーがあればそこに戻る、なければタイムラインへ
+				$referer = Input::referrer();
+				if ($referer && strpos($referer, '/auth/') === false) {
+					Response::redirect($referer);
+				}
+				Response::redirect('report/index');
 			}
 			else
 			{
 				// ログイン失敗
 				Session::set_flash('error', 'メールアドレスまたはパスワードが正しくありません。');
+				Response::redirect(Input::referrer('report/index'));
 			}
 		}
 
-		// ログインフォームを表示
-		$this->template->title = 'ログイン';
-		$this->template->content = View::forge('auth/login_new');
+		// GETリクエストの場合はタイムラインへリダイレクト（モーダルで表示するため）
+		Response::redirect('report/index');
 	}
 
 	/**
@@ -75,7 +81,7 @@ class Controller_Auth extends Controller_Template
 		Session::delete('username');
 		Session::delete('email');
 		Session::set_flash('success', 'ログアウトしました。');
-		Response::redirect('auth/login');
+		Response::redirect('report/index');
 	}
 
 }
