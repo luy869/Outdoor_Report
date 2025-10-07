@@ -22,9 +22,15 @@ services:
       MYSQL_DATABASE: outdoor_reports
     ports:
       - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
     networks:
       - fuelphp-network
 
 networks:
   fuelphp-network:
     driver: bridge
+
+volumes:
+  db_data:
+    driver: local

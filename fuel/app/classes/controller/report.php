@@ -8,9 +8,15 @@ class Controller_Report extends Controller_Template
     {
         parent::before();
 
-        // ログインチェック
-        if (!Session::get('user_id')) {
-            Response::redirect('auth/login');
+        // ログインが必要なアクション
+        $login_required_actions = ['mypage', 'create', 'store', 'edit', 'update', 'delete'];
+        $current_action = str_replace('action_', '', Request::active()->action);
+        
+        // ログインが必要なアクションでログインしていない場合
+        if (in_array($current_action, $login_required_actions) && !Session::get('user_id')) {
+            Session::set_flash('error', 'ログインが必要です');
+            // 元のページに戻れるようにリファラーを保存
+            Response::redirect('report/index');
         }
     }
 
@@ -400,5 +406,58 @@ class Controller_Report extends Controller_Template
         }
 
         Response::redirect('report');
+    }
+
+    /**
+     * マイページ - 自分の投稿一覧
+     */
+    public function action_mypage()
+    {
+        // ログインしているユーザーのレポートを新しい順に取得
+        $user_id = Session::get('user_id');
+        
+        $reports = Model_Report::query()
+            ->where('user_id', $user_id)
+            ->order_by('created_at', 'desc')
+            ->get();
+
+        $data['reports'] = array();
+        
+        // location情報も取得し、配列に変換
+        foreach ($reports as $report) {
+            // location情報を取得
+            $location_name = null;
+            if ($report->location_id) {
+                $location = DB::select('name')
+                    ->from('locations')
+                    ->where('id', $report->location_id)
+                    ->execute()
+                    ->current();
+                $location_name = $location ? $location['name'] : null;
+            }
+            
+            // 最初の写真を取得
+            $first_photo = DB::select('image_url')
+                ->from('photos')
+                ->where('report_id', $report->id)
+                ->limit(1)
+                ->execute()
+                ->current();
+            
+            // 配列に変換して安全に渡す
+            $data['reports'][] = array(
+                'id' => (int)$report->id,
+                'title' => $report->title ? (string)$report->title : '無題',
+                'body' => $report->body ? (string)$report->body : '',
+                'visit_date' => (string)$report->visit_date,
+                'created_at' => (string)$report->created_at,
+                'location_name' => $location_name ? (string)$location_name : '',
+                'image_url' => $first_photo ? (string)$first_photo['image_url'] : null,
+                'privacy' => (int)$report->privacy,
+            );
+        }
+
+        $this->template->title = 'マイページ';
+        $this->template->content = View::forge('report/mypage', $data, false);
     }
 }
