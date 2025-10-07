@@ -1,29 +1,4 @@
 <style>
-	.view-tabs {
-		display: flex;
-		gap: 16px;
-		margin-bottom: 32px;
-		border-bottom: 2px solid #e2e8f0;
-	}
-	.view-tab {
-		padding: 12px 24px;
-		background: none;
-		border: none;
-		color: #64748b;
-		font-size: 16px;
-		font-weight: 500;
-		cursor: pointer;
-		border-bottom: 2px solid transparent;
-		margin-bottom: -2px;
-		transition: all 0.2s;
-	}
-	.view-tab.active {
-		color: #3b82f6;
-		border-bottom-color: #3b82f6;
-	}
-	.view-tab:hover {
-		color: #3b82f6;
-	}
 	.reports-timeline {
 		display: flex;
 		flex-direction: column;
@@ -145,11 +120,6 @@
 
 <h1 class="page-title">タイムライン</h1>
 
-<div class="view-tabs">
-	<button class="view-tab active">タイムライン</button>
-	<button class="view-tab">カレンダー</button>
-</div>
-
 <?php if (isset($reports) && is_array($reports) && count($reports) > 0): ?>
 	<div class="reports-timeline">
 		<?php foreach ($reports as $report): ?>
@@ -202,4 +172,6 @@
 	</div>
 <?php endif; ?>
 
+<?php if (Session::get('user_id')): ?>
 <a href="/report/create" class="fab-button">+</a>
+<?php endif; ?>
