@@ -225,9 +225,26 @@
 			transition: all 0.2s;
 			margin-top: 8px;
 		}
+		.btn-register {
+			width: 100%;
+			padding: 14px;
+			background: linear-gradient(135deg, #ea6666ff 0%, #4b98a2ff 100%);
+			color: white;
+			border: none;
+			border-radius: 8px;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s;
+			margin-top: 8px;
+		}
 		.btn-submit:hover {
 			transform: translateY(-2px);
 			box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+		}
+		.btn-register:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(234, 102, 102, 0.4);
 		}
 		.test-credentials {
 			margin-top: 24px;
@@ -342,16 +359,63 @@
 				</div>
 				
 				<button type="submit" class="btn-submit">ログイン</button>
+				<button type="button" onclick=openRegisterModal() class="btn-register">新規登録</button>
 			</form>
 			
 			<div class="test-credentials">
-				<strong>🧪 テスト用アカウント</strong>
-				以下の情報でログインできます:
+				<strong>🧪 テスト用アカウント（全てパスワード: password）</strong>
 				<div class="test-cred-box">
-					<div><strong>メール:</strong> test@example.com</div>
-					<div><strong>パスワード:</strong> password</div>
+					<div>1. test1@example.com</div>
+					<div>2. test2@example.com</div>
+					<div>3. test3@example.com</div>
+					<div>4. test4@example.com</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	
+	<!-- 新規登録モーダル -->
+	<div id="registerModal" class="modal-overlay">
+		<div class="modal-content">
+			<button class="modal-close" onclick="closeRegisterModal()">×</button>
+			
+			<div class="modal-header">
+				<div class="modal-icon">
+					<svg viewBox="0 0 24 24">
+						<path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+					</svg>
+				</div>
+				<h2 class="modal-title">新規登録</h2>
+				<p class="modal-subtitle">アカウントを作成してください</p>
+			</div>
+
+			<form action="/auth/register" method="post">
+				<!-- ① メールアドレス入力 -->
+				<div class="form-group">
+					<label class="form-label" for="register_email">メールアドレス</label>
+					<input type="email" name="email" id="register_email" class="form-input" placeholder="your@email.com" required>
+				</div>
+				
+				<!-- ② ユーザー名入力 -->
+				<div class="form-group">
+					<label class="form-label" for="username">ユーザーネーム</label>
+					<input type="text" name="username" id="username" class="form-input" placeholder="ユーザーネーム" required>
+				</div>
+				
+				<!-- ③ パスワード入力 -->
+				<div class="form-group">
+					<label class="form-label" for="register_password">パスワード</label>
+					<input type="password" name="password" id="register_password" class="form-input" placeholder="パスワード" required>
+				</div>
+				
+				<!-- ④ パスワード確認入力 -->
+				<div class="form-group">
+					<label class="form-label" for="password_confirm">パスワード確認</label>
+					<input type="password" name="password_confirm" id="password_confirm" class="form-input" placeholder="パスワード再入力" required>
+				</div>
+				
+				<button type="submit" class="btn-submit">新規登録</button>
+			</form>
 		</div>
 	</div>
 	<?php endif; ?>
@@ -391,11 +455,27 @@
 			document.body.style.overflow = '';
 		}
 
+		function openRegisterModal() {
+			closeLoginModal();  // ログインモーダルを閉じる
+			document.getElementById('registerModal').classList.add('active');  // registernModal → registerModal
+			document.body.style.overflow = 'hidden';
+		}
+
+		function closeRegisterModal() {
+			document.getElementById('registerModal').classList.remove('active');
+			document.body.style.overflow = '';
+		}
+
 		// モーダル外をクリックしたら閉じる
 		document.addEventListener('click', function(e) {
-			const modal = document.getElementById('loginModal');
-			if (modal && e.target === modal) {
+			const loginModal = document.getElementById('loginModal');
+			const registerModal = document.getElementById('registerModal');
+			
+			if (loginModal && e.target === loginModal) {
 				closeLoginModal();
+			}
+			if (registerModal && e.target === registerModal) {
+				closeRegisterModal();
 			}
 		});
 
@@ -403,6 +483,7 @@
 		document.addEventListener('keydown', function(e) {
 			if (e.key === 'Escape') {
 				closeLoginModal();
+				closeRegisterModal();
 			}
 		});
 
