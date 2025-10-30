@@ -1,4 +1,68 @@
 <style>
+	.search-container {
+		background: white;
+		border-radius: 12px;
+		padding: 24px;
+		margin-bottom: 24px;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+	}
+	.search-title {
+		font-size: 18px;
+		font-weight: 700;
+		color: #1e293b;
+		margin: 0 0 16px 0;
+	}
+	.search-form {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 12px;
+		margin-bottom: 16px;
+	}
+	.search-input {
+		padding: 10px 14px;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		font-size: 14px;
+		transition: all 0.2s;
+	}
+	.search-input:focus {
+		outline: none;
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	}
+	.search-buttons {
+		display: flex;
+		gap: 8px;
+	}
+	.search-btn {
+		padding: 10px 24px;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+	.search-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+	}
+	.clear-btn {
+		padding: 10px 20px;
+		background: white;
+		color: #64748b;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+	.clear-btn:hover {
+		background: #f8fafc;
+	}
 	.reports-timeline {
 		display: flex;
 		flex-direction: column;
@@ -119,6 +183,37 @@
 </style>
 
 <h1 class="page-title">タイムライン</h1>
+
+<!-- 検索フォーム -->
+<div class="search-container">
+	<h3 class="search-title">🔍 レポートを検索</h3>
+	<form action="/report/index" method="get">
+		<div class="search-form">
+			<input type="text" 
+			       name="keyword" 
+			       class="search-input" 
+			       placeholder="キーワード（タイトル・本文）"
+			       value="<?php echo isset($keyword) ? htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') : ''; ?>">
+			
+			<input type="text" 
+			       name="tag" 
+			       class="search-input" 
+			       placeholder="タグ"
+			       value="<?php echo isset($tag) ? htmlspecialchars($tag, ENT_QUOTES, 'UTF-8') : ''; ?>">
+			
+			<input type="text" 
+			       name="location" 
+			       class="search-input" 
+			       placeholder="場所"
+			       value="<?php echo isset($location) ? htmlspecialchars($location, ENT_QUOTES, 'UTF-8') : ''; ?>">
+		</div>
+		
+		<div class="search-buttons">
+			<button type="submit" class="search-btn">検索</button>
+			<a href="/report/index" class="clear-btn">クリア</a>
+		</div>
+	</form>
+</div>
 
 <?php if (isset($reports) && is_array($reports) && count($reports) > 0): ?>
 	<div class="reports-timeline">
