@@ -29,6 +29,8 @@ class Controller_Report extends Controller_Template
         $keyword = Input::get('keyword', '');
         $tag = Input::get('tag', '');
         $location = Input::get('location', '');
+        $date_from = Input::get('date_from', '');
+        $date_to = Input::get('date_to', '');
 
         // クエリビルダー開始
         $query = DB::select(
@@ -68,6 +70,14 @@ class Controller_Report extends Controller_Template
             $query->join('locations', 'LEFT')
                 ->on('reports.location_id', '=', 'locations.id')
                 ->where('locations.name', 'LIKE', '%' . $location . '%');
+        }
+
+        // 日付範囲検索
+        if (!empty($date_from)) {
+            $query->where('reports.visit_date', '>=', $date_from);
+        }
+        if (!empty($date_to)) {
+            $query->where('reports.visit_date', '<=', $date_to);
         }
 
         $query->order_by('reports.created_at', 'DESC');
@@ -111,6 +121,8 @@ class Controller_Report extends Controller_Template
         $data['keyword'] = $keyword;
         $data['tag'] = $tag;
         $data['location'] = $location;
+        $data['date_from'] = $date_from;
+        $data['date_to'] = $date_to;
 
         $this->template->title = 'タイムライン';
         $this->template->content = View::forge('report/index_new', $data, false);

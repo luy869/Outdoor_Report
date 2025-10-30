@@ -1,4 +1,7 @@
 <style>
+	body {
+		background: #f5f3f0;
+	}
 	.detail-header {
 		display: flex;
 		justify-content: space-between;
@@ -9,14 +12,14 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		color: #64748b;
+		color: #6b6b6b;
 		text-decoration: none;
 		font-weight: 500;
 		padding: 8px 16px;
 		transition: color 0.2s;
 	}
 	.btn-back:hover {
-		color: #3b82f6;
+		color: #5a8f7b;
 	}
 	.detail-actions {
 		display: flex;
@@ -28,34 +31,34 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border-radius: 8px;
-		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		border: 2px solid #d4c5b9;
 		background: white;
-		color: #64748b;
+		color: #6b6b6b;
 		text-decoration: none;
 		transition: all 0.2s;
 	}
 	.btn-icon:hover {
-		background: #f8fafc;
-		color: #3b82f6;
-		border-color: #3b82f6;
+		background: #f5f3f0;
+		color: #5a8f7b;
+		border-color: #5a8f7b;
 	}
 	.btn-icon.delete:hover {
-		background: #fee;
-		color: #dc2626;
-		border-color: #dc2626;
+		background: #fff3e0;
+		color: #e65100;
+		border-color: #ffa726;
 	}
 	.detail-container {
 		background: white;
-		border-radius: 12px;
+		border-radius: 8px;
 		overflow: hidden;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+		border: 2px solid #d4c5b9;
 	}
 	.detail-hero-image {
 		width: 100%;
 		height: 400px;
 		object-fit: cover;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #8b7355;
 	}
 	.photo-gallery {
 		display: grid;
@@ -244,25 +247,27 @@
 		flex: 1;
 		padding: 12px;
 		border: none;
-		border-radius: 8px;
+		border-radius: 6px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s;
 	}
 	.btn-modal-cancel {
-		background: #f1f5f9;
-		color: #64748b;
+		background: white;
+		color: #6b6b6b;
+		border: 2px solid #d4c5b9;
 	}
 	.btn-modal-cancel:hover {
-		background: #e2e8f0;
+		background: #f5f3f0;
 	}
 	.btn-modal-delete {
-		background: #dc2626;
+		background: #e65100;
 		color: white;
+		border: 2px solid #d84315;
 	}
 	.btn-modal-delete:hover {
-		background: #b91c1c;
+		background: #d84315;
 	}
 	.detail-content {
 		padding: 40px;
@@ -270,7 +275,7 @@
 	.detail-title {
 		font-size: 32px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 		margin-bottom: 24px;
 	}
 	.detail-meta-grid {
@@ -284,8 +289,9 @@
 		align-items: flex-start;
 		gap: 12px;
 		padding: 16px;
-		background: #f8fafc;
-		border-radius: 8px;
+		background: #f5f3f0;
+		border-radius: 6px;
+		border: 1px solid #d4c5b9;
 	}
 	.meta-icon {
 		width: 40px;
@@ -293,9 +299,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #dbeafe;
-		border-radius: 8px;
-		color: #3b82f6;
+		background: #e8f5e9;
+		border-radius: 6px;
+		color: #2e7d32;
 		flex-shrink: 0;
 	}
 	.meta-content {
@@ -303,14 +309,14 @@
 	}
 	.meta-label {
 		font-size: 12px;
-		color: #94a3b8;
+		color: #6b6b6b;
 		font-weight: 600;
 		text-transform: uppercase;
 		margin-bottom: 4px;
 	}
 	.meta-value {
 		font-size: 16px;
-		color: #1e293b;
+		color: #3d3d3d;
 		font-weight: 600;
 	}
 	.detail-section {
@@ -319,11 +325,11 @@
 	.section-title {
 		font-size: 20px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 		margin-bottom: 16px;
 	}
 	.detail-description {
-		color: #475569;
+		color: #555;
 		line-height: 1.8;
 		font-size: 16px;
 		white-space: pre-wrap;
@@ -331,12 +337,13 @@
 	.detail-map {
 		width: 100%;
 		height: 200px;
-		background: #f1f5f9;
-		border-radius: 8px;
+		background: #f5f3f0;
+		border-radius: 6px;
+		border: 2px solid #d4c5b9;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #94a3b8;
+		color: #6b6b6b;
 	}
 	.expenses-list {
 		display: flex;
@@ -348,8 +355,9 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 16px;
-		background: #f8fafc;
-		border-radius: 8px;
+		background: #f5f3f0;
+		border-radius: 6px;
+		border: 1px solid #d4c5b9;
 	}
 	.expense-icon-wrapper {
 		display: flex;
@@ -362,19 +370,19 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #dbeafe;
-		border-radius: 8px;
-		color: #3b82f6;
+		background: #e8f5e9;
+		border-radius: 6px;
+		color: #2e7d32;
 	}
 	.expense-name {
 		font-size: 15px;
 		font-weight: 600;
-		color: #1e293b;
+		color: #3d3d3d;
 	}
 	.expense-amount {
 		font-size: 18px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 	}
 	.tags-list {
 		display: flex;
@@ -383,11 +391,12 @@
 	}
 	.tag {
 		padding: 6px 16px;
-		background: #dbeafe;
-		color: #3b82f6;
+		background: #e8f5e9;
+		color: #2e7d32;
 		border-radius: 16px;
 		font-size: 14px;
 		font-weight: 600;
+		border: 1px solid #66bb6a;
 	}
 </style>
 

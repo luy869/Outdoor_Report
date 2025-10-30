@@ -1,4 +1,8 @@
 <style>
+	body {
+		background: #f5f3f0;
+	}
+
 	.profile-container {
 		max-width: 1200px;
 		margin: 0 auto;
@@ -6,11 +10,11 @@
 	}
 
 	.profile-header {
-		background: white;
-		border-radius: 16px;
+		background: #ffffff;
+		border-radius: 8px;
 		padding: 32px;
 		margin-bottom: 32px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		border: 2px solid #d4c5b9;
 	}
 
 	.profile-top {
@@ -24,7 +28,7 @@
 		width: 120px;
 		height: 120px;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #8b7355;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -32,6 +36,7 @@
 		font-weight: 700;
 		color: white;
 		flex-shrink: 0;
+		border: 4px solid #5a8f7b;
 	}
 
 	.profile-avatar img {
@@ -48,18 +53,18 @@
 	.profile-username {
 		font-size: 28px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 		margin-bottom: 8px;
 	}
 
 	.profile-email {
-		color: #64748b;
+		color: #6b6b6b;
 		font-size: 14px;
 		margin-bottom: 12px;
 	}
 
 	.profile-bio {
-		color: #475569;
+		color: #555;
 		line-height: 1.6;
 		margin-bottom: 16px;
 	}
@@ -68,7 +73,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		color: #94a3b8;
+		color: #6b6b6b;
 		font-size: 13px;
 	}
 
@@ -79,18 +84,18 @@
 
 	.btn-edit-profile {
 		padding: 10px 24px;
-		background: #3b82f6;
+		background: #5a8f7b;
 		color: white;
 		text-decoration: none;
-		border-radius: 8px;
+		border-radius: 6px;
 		font-weight: 600;
 		transition: all 0.2s;
 		display: inline-block;
+		border: 2px solid #4a7a66;
 	}
 
 	.btn-edit-profile:hover {
-		background: #2563eb;
-		transform: translateY(-1px);
+		background: #4a7a66;
 	}
 
 	.profile-stats {
@@ -98,7 +103,7 @@
 		grid-template-columns: repeat(3, 1fr);
 		gap: 24px;
 		padding-top: 24px;
-		border-top: 1px solid #e2e8f0;
+		border-top: 2px solid #d4c5b9;
 	}
 
 	.stat-item {
@@ -108,14 +113,14 @@
 	.stat-value {
 		font-size: 32px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #5a8f7b;
 		display: block;
 		margin-bottom: 4px;
 	}
 
 	.stat-label {
 		font-size: 13px;
-		color: #64748b;
+		color: #6b6b6b;
 		font-weight: 500;
 	}
 
@@ -133,7 +138,7 @@
 	.section-title {
 		font-size: 20px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 	}
 
 	.reports-grid {
@@ -144,9 +149,9 @@
 
 	.report-card {
 		background: white;
-		border-radius: 12px;
+		border-radius: 8px;
 		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		border: 2px solid #d4c5b9;
 		transition: all 0.2s;
 		text-decoration: none;
 		color: inherit;
@@ -154,14 +159,14 @@
 	}
 
 	.report-card:hover {
-		transform: translateY(-4px);
-		box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+		border-color: #5a8f7b;
+		transform: translateY(-2px);
 	}
 
 	.report-image {
 		width: 100%;
 		aspect-ratio: 16/9;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #8b7355;
 		position: relative;
 		overflow: hidden;
 	}
@@ -194,35 +199,38 @@
 	.report-title {
 		font-size: 18px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 		margin-bottom: 4px;
 	}
 
 	.report-date {
 		font-size: 13px;
-		color: #64748b;
+		color: #6b6b6b;
 	}
 
 	.privacy-badge {
 		padding: 4px 10px;
-		border-radius: 12px;
+		border-radius: 4px;
 		font-size: 11px;
 		font-weight: 600;
 		flex-shrink: 0;
+		border: 1px solid;
 	}
 
 	.privacy-public {
-		background: #dbeafe;
-		color: #1e40af;
+		background: #e8f5e9;
+		color: #2e7d32;
+		border-color: #66bb6a;
 	}
 
 	.privacy-private {
-		background: #fee2e2;
-		color: #991b1b;
+		background: #fff3e0;
+		color: #e65100;
+		border-color: #ffa726;
 	}
 
 	.report-body {
-		color: #475569;
+		color: #555;
 		font-size: 14px;
 		line-height: 1.6;
 		margin-bottom: 12px;
@@ -240,17 +248,18 @@
 
 	.tag {
 		padding: 4px 10px;
-		background: #f1f5f9;
-		color: #475569;
-		border-radius: 6px;
+		background: #e8f5e9;
+		color: #2e7d32;
+		border-radius: 4px;
 		font-size: 12px;
 		font-weight: 500;
+		border: 1px solid #66bb6a;
 	}
 
 	.empty-state {
 		text-align: center;
 		padding: 64px 20px;
-		color: #94a3b8;
+		color: #6b6b6b;
 	}
 
 	.empty-icon {
@@ -356,17 +365,15 @@
 						</div>
 
 						<div class="report-content">
-							<div class="report-header">
-								<div>
-									<h3 class="report-title"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-									<div class="report-date"><?php echo date('Y年m月d日', strtotime($report['visit_date'])); ?></div>
-								</div>
-								<span class="privacy-badge <?php echo $report['privacy'] == 0 ? 'privacy-public' : 'privacy-private'; ?>">
-									<?php echo $report['privacy'] == 0 ? '公開' : '非公開'; ?>
-								</span>
+						<div class="report-header">
+							<div>
+								<h3 class="report-title"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+								<div class="report-date"><?php echo date('Y年m月d日', strtotime($report['visit_date'])); ?></div>
 							</div>
-
-							<p class="report-body"><?php echo htmlspecialchars($report['body'], ENT_QUOTES, 'UTF-8'); ?></p>
+							<span class="privacy-badge <?php echo $report['privacy'] == 0 ? 'privacy-public' : 'privacy-private'; ?>">
+								<?php echo $report['privacy'] == 0 ? '公開' : '非公開'; ?>
+							</span>
+						</div>							<p class="report-body"><?php echo htmlspecialchars($report['body'], ENT_QUOTES, 'UTF-8'); ?></p>
 
 							<?php if ($report['tags']): ?>
 								<div class="report-tags">
