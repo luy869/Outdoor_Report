@@ -156,5 +156,5 @@ class Controller_Auth extends Controller_Template
 		
 		// GETリクエストの場合
 		Response::redirect('report/index');
-	}  // ← この波括弧が重要！action_register() の終了
+	}  
 }

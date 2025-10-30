@@ -256,27 +256,40 @@
 </style>
 
 <div class="create-header">
-	<a href="/report" class="btn-cancel">キャンセル</a>
-	<h1 class="page-title" style="margin: 0;">新規レポート</h1>
-	<button type="submit" form="report-form" class="btn-save">保存</button>
+	<a href="/report/view/<?php echo isset($report_id) ? $report_id : ''; ?>" class="btn-cancel">キャンセル</a>
+	<h1 class="page-title" style="margin: 0;">レポート編集</h1>
+	<button type="submit" form="report-form" class="btn-save">更新</button>
 </div>
 
 <div class="form-container">
-	<?php echo Form::open(array('action' => 'report/store', 'method' => 'post', 'id' => 'report-form', 'enctype' => 'multipart/form-data')); ?>
+	<?php echo Form::open(array('action' => 'report/update/' . (isset($report_id) ? $report_id : ''), 'method' => 'post', 'id' => 'report-form', 'enctype' => 'multipart/form-data')); ?>
 
 	<!-- 写真セクション -->
 	<div class="form-section">
 		<h2 class="section-title">写真</h2>
 		
-		<!-- 画像追加ボタン（プレビューがある場合に表示） -->
-		<button type="button" id="add-more-btn" class="btn-add-more-photos" style="display: none;" onclick="document.getElementById('photo-input').click()">
+		<!-- 既存の画像 -->
+		<?php if (!empty($photos)): ?>
+		<div id="existing-photos" class="photo-preview-container" style="margin-bottom: 16px;">
+			<?php foreach ($photos as $photo): ?>
+			<div class="photo-preview-item" id="existing-photo-<?php echo $photo['id']; ?>">
+				<img src="<?php echo htmlspecialchars($photo['image_url'], ENT_QUOTES, 'UTF-8'); ?>" alt="既存画像">
+				<button type="button" class="photo-preview-remove" onclick="deleteExistingPhoto(<?php echo $photo['id']; ?>)" title="削除">×</button>
+				<input type="hidden" name="delete_photos[]" id="delete-photo-<?php echo $photo['id']; ?>" value="" disabled>
+			</div>
+			<?php endforeach; ?>
+		</div>
+		<?php endif; ?>
+		
+		<!-- 画像追加ボタン -->
+		<button type="button" id="add-more-btn" class="btn-add-more-photos" onclick="document.getElementById('photo-input').click()">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
 				<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 			</svg>
 			写真を追加
 		</button>
 		
-		<div class="photo-upload-area" id="upload-area" onclick="document.getElementById('photo-input').click()">
+		<div class="photo-upload-area" id="upload-area" style="display: none;" onclick="document.getElementById('photo-input').click()">
 			<svg class="upload-icon" viewBox="0 0 24 24" fill="currentColor">
 				<path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
 			</svg>
@@ -293,7 +306,7 @@
 		
 		<div class="form-group">
 			<label class="form-label">タイトル</label>
-			<?php echo Form::input('title', Input::post('title'), array(
+			<?php echo Form::input('title', Input::post('title', isset($title) ? $title : ''), array(
 				'class' => 'form-input',
 				'placeholder' => '例: 山への旅行',
 				'maxlength' => '32',
@@ -304,7 +317,7 @@
 		<div class="form-row">
 			<div class="form-group">
 				<label class="form-label">日付</label>
-				<?php echo Form::input('visit_date', Input::post('visit_date', date('Y-m-d')), array(
+				<?php echo Form::input('visit_date', Input::post('visit_date', isset($visit_date) ? $visit_date : date('Y-m-d')), array(
 					'type' => 'date',
 					'class' => 'form-input',
 					'required' => 'required'
@@ -313,7 +326,7 @@
 			
 			<div class="form-group">
 				<label class="form-label">場所</label>
-				<?php echo Form::input('location', Input::post('location'), array(
+				<?php echo Form::input('location', Input::post('location', isset($location_name) ? $location_name : ''), array(
 					'class' => 'form-input',
 					'placeholder' => '場所を検索'
 				)); ?>
@@ -322,7 +335,7 @@
 
 		<div class="form-group">
 			<label class="form-label">説明</label>
-			<?php echo Form::textarea('body', Input::post('body'), array(
+			<?php echo Form::textarea('body', Input::post('body', isset($body) ? $body : ''), array(
 				'class' => 'form-input form-textarea',
 				'placeholder' => 'あなたの冒険を説明してください...',
 				'required' => 'required'
@@ -334,10 +347,20 @@
 	<div class="form-section">
 		<h2 class="section-title">費用</h2>
 		<div id="expenses-container">
+			<?php if (!empty($expenses)): ?>
+				<?php foreach ($expenses as $expense): ?>
+				<div class="expense-item">
+					<input type="text" class="form-input" placeholder="例: ランチ" name="expense_item[]" value="<?php echo htmlspecialchars($expense['item_name'], ENT_QUOTES, 'UTF-8'); ?>">
+					<input type="number" class="form-input" placeholder="例: 550" name="expense_amount[]" min="0" value="<?php echo $expense['amount']; ?>">
+					<button type="button" onclick="this.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">削除</button>
+				</div>
+				<?php endforeach; ?>
+			<?php else: ?>
 			<div class="expense-item">
 				<input type="text" class="form-input" placeholder="例: ランチ" name="expense_item[]">
 				<input type="number" class="form-input" placeholder="例: 550" name="expense_amount[]" min="0">
 			</div>
+			<?php endif; ?>
 		</div>
 		<button type="button" class="btn-add-expense" onclick="addExpense()">
 			<span>+</span> 費用を追加
@@ -349,7 +372,7 @@
 		<h2 class="section-title">タグ</h2>
 		<div class="form-group">
 			<label class="form-label">レポートを分類するためのタグを追加（カンマ区切り）</label>
-			<?php echo Form::input('tags', Input::post('tags'), array(
+			<?php echo Form::input('tags', Input::post('tags', isset($tags_string) ? $tags_string : ''), array(
 				'class' => 'form-input',
 				'placeholder' => '例: ハイキング, 自然, 旅行'
 			)); ?>
@@ -365,16 +388,32 @@
 				<span class="toggle-hint">このレポートを他の人に見えるようにする</span>
 			</div>
 			<label class="toggle-switch">
-				<?php echo Form::checkbox('privacy', '0', Input::post('privacy', true), array('id' => 'privacy-toggle')); ?>
+				<?php echo Form::checkbox('privacy', '0', Input::post('privacy', isset($privacy) ? ($privacy == 0) : true), array('id' => 'privacy-toggle')); ?>
 				<span class="toggle-slider"></span>
 			</label>
 		</div>
+	</div>
 	</div>
 
 	<?php echo Form::close(); ?>
 </div>
 
 <script>
+// 既存画像を削除する関数
+function deleteExistingPhoto(photoId) {
+	if (confirm('この画像を削除しますか?')) {
+		// 画像を非表示にする
+		const photoElement = document.getElementById('existing-photo-' + photoId);
+		photoElement.style.opacity = '0.5';
+		photoElement.querySelector('.photo-preview-remove').style.display = 'none';
+		
+		// 削除フラグを立てる
+		const deleteInput = document.getElementById('delete-photo-' + photoId);
+		deleteInput.value = photoId;
+		deleteInput.disabled = false;
+	}
+}
+
 // 選択された写真ファイルを保持
 let selectedFiles = [];
 

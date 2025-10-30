@@ -12,6 +12,7 @@
 			background: #f5f7fa;
 			color: #2c3e50;
 			line-height: 1.6;
+			min-height: 100vh;
 		}
 		.app-header {
 			background: white;
@@ -308,7 +309,7 @@
 			<nav class="app-nav">
 				<a href="/report/index">タイムライン</a>
 				<?php if (Session::get('user_id')): ?>
-					<a href="/report/mypage">マイページ</a>
+					<a href="/user/profile">プロフィール</a>
 					<a href="/report/create">新規投稿</a>
 				<?php endif; ?>
 			</nav>
