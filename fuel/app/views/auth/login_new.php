@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Noto Sans JP', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f3f0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,8 +19,8 @@
         .login-container {
             background: white;
             padding: 48px 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 2px solid #d4c5b9;
             width: 100%;
             max-width: 420px;
         }
@@ -32,11 +32,12 @@
             width: 64px;
             height: 64px;
             margin: 0 auto 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
+            background: #8b7355;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 4px solid #5a8f7b;
         }
         .app-icon svg {
             width: 36px;
@@ -46,28 +47,28 @@
         h1 {
             font-size: 24px;
             font-weight: 700;
-            color: #1e293b;
+            color: #3d3d3d;
             margin-bottom: 8px;
         }
         .subtitle {
-            color: #64748b;
+            color: #6b6b6b;
             font-size: 14px;
         }
         .alert {
             padding: 14px 16px;
             margin-bottom: 24px;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
         }
         .alert-error {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background-color: #fff3e0;
+            color: #e65100;
+            border: 2px solid #ffa726;
         }
         .alert-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #66bb6a;
         }
         .form-group {
             margin-bottom: 20px;
@@ -75,7 +76,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #334155;
+            color: #3d3d3d;
             font-weight: 600;
             font-size: 14px;
         }
@@ -83,24 +84,24 @@
         input[type="password"] {
             width: 100%;
             padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border: 2px solid #d4c5b9;
+            border-radius: 6px;
             font-size: 15px;
             font-family: 'Noto Sans JP', sans-serif;
             transition: all 0.2s;
         }
         input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #5a8f7b;
+            box-shadow: 0 0 0 3px rgba(90, 143, 123, 0.1);
         }
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #5a8f7b;
             color: white;
-            border: none;
-            border-radius: 8px;
+            border: 2px solid #4a7a66;
+            border-radius: 6px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -108,20 +109,20 @@
             margin-top: 8px;
         }
         button:hover {
+            background: #4a7a66;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         .test-info {
             margin-top: 24px;
             padding: 16px;
-            background-color: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            border-radius: 4px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #5a8f7b;
+            border-radius: 6px;
             font-size: 13px;
             line-height: 1.6;
         }
         .test-info strong {
-            color: #1e40af;
+            color: #2e7d32;
             display: block;
             margin-bottom: 8px;
         }
@@ -130,6 +131,7 @@
             padding: 12px;
             border-radius: 6px;
             margin-top: 8px;
+            border: 1px solid #d4c5b9;
             font-family: 'Courier New', monospace;
             font-size: 12px;
         }

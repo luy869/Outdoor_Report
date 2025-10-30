@@ -1,4 +1,7 @@
 <style>
+	body {
+		background: #f5f3f0;
+	}
 	.edit-container {
 		max-width: 800px;
 		margin: 0 auto;
@@ -15,11 +18,11 @@
 	.edit-title {
 		font-size: 28px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 	}
 
 	.btn-cancel {
-		color: #64748b;
+		color: #6b6b6b;
 		text-decoration: none;
 		font-weight: 500;
 		padding: 8px 16px;
@@ -27,9 +30,9 @@
 
 	.edit-card {
 		background: white;
-		border-radius: 12px;
+		border-radius: 8px;
 		padding: 32px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		border: 2px solid #d4c5b9;
 	}
 
 	.form-section {
@@ -43,7 +46,7 @@
 	.section-title {
 		font-size: 18px;
 		font-weight: 700;
-		color: #1e293b;
+		color: #3d3d3d;
 		margin-bottom: 16px;
 	}
 
@@ -58,7 +61,7 @@
 		width: 100px;
 		height: 100px;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #8b7355;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -66,6 +69,7 @@
 		font-weight: 700;
 		color: white;
 		flex-shrink: 0;
+		border: 4px solid #5a8f7b;
 	}
 
 	.current-avatar img {
@@ -82,7 +86,7 @@
 	.form-label {
 		display: block;
 		margin-bottom: 8px;
-		color: #334155;
+		color: #3d3d3d;
 		font-weight: 600;
 		font-size: 14px;
 	}
@@ -90,8 +94,8 @@
 	.form-input {
 		width: 100%;
 		padding: 12px 16px;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
+		border: 2px solid #d4c5b9;
+		border-radius: 6px;
 		font-size: 15px;
 		font-family: 'Noto Sans JP', sans-serif;
 		transition: all 0.2s;
@@ -99,8 +103,8 @@
 
 	.form-input:focus {
 		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		border-color: #5a8f7b;
+		box-shadow: 0 0 0 3px rgba(90, 143, 123, 0.1);
 	}
 
 	.form-textarea {
@@ -110,17 +114,17 @@
 
 	.form-hint {
 		font-size: 13px;
-		color: #94a3b8;
+		color: #6b6b6b;
 		margin-top: 6px;
 	}
 
 	.btn-save {
 		width: 100%;
 		padding: 14px;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #5a8f7b;
 		color: white;
-		border: none;
-		border-radius: 8px;
+		border: 2px solid #4a7a66;
+		border-radius: 6px;
 		font-size: 16px;
 		font-weight: 600;
 		cursor: pointer;
@@ -128,19 +132,19 @@
 	}
 
 	.btn-save:hover {
+		background: #4a7a66;
 		transform: translateY(-2px);
-		box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
 	}
 
 	.link-section {
 		margin-top: 24px;
 		padding-top: 24px;
-		border-top: 1px solid #e2e8f0;
+		border-top: 2px solid #d4c5b9;
 	}
 
 	.link-button {
 		display: inline-block;
-		color: #3b82f6;
+		color: #5a8f7b;
 		text-decoration: none;
 		font-weight: 500;
 		font-size: 14px;
