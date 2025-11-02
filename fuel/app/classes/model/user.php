@@ -1,6 +1,8 @@
 <?php
 
-class Model_User extends \Orm\Model
+namespace Model;
+
+class User extends \Orm\Model
 {
     protected static $_properties = array(
         'id',
@@ -16,7 +18,7 @@ class Model_User extends \Orm\Model
     protected static $_has_many = array(
         'reports' => array(
             'key_from' => 'id',
-            'model_to' => 'Model_Report',
+            'model_to' => 'Model\\Report',
             'key_to' => 'user_id',
         )
     );

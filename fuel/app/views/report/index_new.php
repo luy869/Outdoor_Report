@@ -129,6 +129,36 @@
 		font-size: 13px;
 		color: #6b6b6b;
 	}
+	.report-actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 12px;
+		padding-top: 12px;
+		border-top: 1px solid #e5e5e5;
+	}
+	.btn-like {
+		background: none;
+		border: none;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 12px;
+		border-radius: 20px;
+		transition: all 0.2s;
+		font-size: 14px;
+	}
+	.btn-like:hover {
+		background: #f5f3f0;
+	}
+	.like-icon {
+		font-size: 18px;
+	}
+	.like-count {
+		color: #6b6b6b;
+		font-weight: 600;
+	}
 	.report-tags {
 		display: flex;
 		gap: 8px;
@@ -267,6 +297,16 @@
 					<div class="report-meta">
 						<span>投稿日: <?php echo date('Y/m/d', strtotime($report['created_at'])); ?></span>
 					</div>
+					
+					<!-- いいねボタン -->
+					<div class="report-actions" onclick="event.stopPropagation();">
+						<button class="btn-like" 
+						        data-report-id="<?php echo $report['id']; ?>"
+						        data-liked="<?php echo $report['user_liked'] ? 'true' : 'false'; ?>">
+							<span class="like-icon"><?php echo $report['user_liked'] ? '❤️' : '🤍'; ?></span>
+							<span class="like-count"><?php echo $report['like_count']; ?></span>
+						</button>
+					</div>
 				</div>
 			</div>
 		<?php endforeach; ?>
@@ -284,3 +324,57 @@
 <?php if (Session::get('user_id')): ?>
 <a href="/report/create" class="fab-button">+</a>
 <?php endif; ?>
+
+<script>
+// DOMが読み込まれたら実行
+document.addEventListener('DOMContentLoaded', function() {
+    // 全てのいいねボタンにイベントリスナーを設定
+    document.querySelectorAll('.btn-like').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // カード全体のクリックイベントを止める
+            const reportId = this.dataset.reportId;
+            toggleLike(reportId, this);
+        });
+    });
+});
+
+// いいね機能（Ajax）
+function toggleLike(reportId, buttonElement) {
+    // サーバーにAjaxリクエストを送信
+    fetch('/report/toggle_like/' + reportId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            '<?php echo \Config::get('security.csrf_token_key'); ?>': '<?php echo \Session::get(\Config::get('security.csrf_token_key')); ?>'
+        }
+    })
+    .then(response => response.json())  // JSONに変換
+    .then(data => {
+        if (data.success) {
+            // 成功したらボタンの表示を更新
+            const icon = buttonElement.querySelector('.like-icon');
+            const count = buttonElement.querySelector('.like-count');
+            
+            // ハートの色を変える
+            icon.textContent = data.liked ? '❤️' : '🤍';
+            // いいね数を更新
+            count.textContent = data.like_count;
+            // data属性も更新
+            buttonElement.dataset.liked = data.liked;
+            
+            // アニメーション効果
+            buttonElement.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                buttonElement.style.transform = 'scale(1)';
+            }, 200);
+        } else {
+            // エラーメッセージを表示
+            alert(data.message || 'エラーが発生しました');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('通信エラーが発生しました');
+    });
+}
+</script>

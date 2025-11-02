@@ -1,6 +1,8 @@
 <?php
 
-class Model_Report extends \Orm\Model
+namespace Model;
+
+class Report extends \Orm\Model
 {
     protected static $_properties = array(
         'id',
@@ -31,7 +33,7 @@ class Model_Report extends \Orm\Model
     protected static $_belongs_to = array(
         'user' => array(
             'key_from' => 'user_id',
-            'model_to' => 'Model_User',
+            'model_to' => 'Model\\User',
             'key_to' => 'id',
         )
     );
@@ -39,7 +41,7 @@ class Model_Report extends \Orm\Model
     // バリデーションルール
     public static function validate($factory)
     {
-        $val = Validation::forge($factory);
+        $val = \Validation::forge($factory);
         $val->add_field('title', 'タイトル', 'required|max_length[32]');
         $val->add_field('body', '本文', 'required');
         $val->add_field('visit_date', '訪問日', 'required|valid_date');

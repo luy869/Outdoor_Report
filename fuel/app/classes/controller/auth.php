@@ -47,6 +47,7 @@ class Controller_Auth extends Controller_Template
 			if ($user && password_verify($password, $user['password']))
 			{
 				// ログイン成功 - セッションにユーザー情報を保存
+				Session::instance()->rotate();
 				Session::set('user_id', $user['id']);
 				Session::set('username', $user['username']);
 				Session::set('email', $user['email']);
@@ -146,6 +147,7 @@ class Controller_Auth extends Controller_Template
 			$user_id = $result[0];
 			
 			// ⑥ 自動ログイン
+			Session::instance()->rotate();
 			Session::set('user_id', $user_id);
 			Session::set('username', $username);
 			Session::set('email', $email);

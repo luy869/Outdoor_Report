@@ -1,5 +1,8 @@
 <?php
 
+use Model\User;
+use Model\Report;
+
 class Controller_User extends Controller_Template
 {
 	/**

@@ -39,69 +39,60 @@
         gap: 20px;
     }
     .report-card {
-        background: white;
-        padding: 20px;
+        background: #ffffff;
+        padding: 24px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 2px solid #d4c5b9;
+        transition: all 0.2s;
+    }
+    .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     .report-card h3 {
-        margin: 0 0 10px 0;
-        color: #667eea;
+        margin: 0 0 12px 0;
+        color: #3d3d3d;
+        font-size: 20px;
+        font-weight: 700;
     }
     .report-card h3 a {
-        color: #667eea;
+        color: #5a8f7b;
         text-decoration: none;
+        transition: color 0.2s;
     }
     .report-card h3 a:hover {
-        text-decoration: underline;
+        color: #4a7a66;
     }
     .report-body {
-        color: #666;
+        color: #555;
         line-height: 1.6;
         margin-bottom: 15px;
     }
     .report-meta {
-        font-size: 14px;
-        color: #999;
+        font-size: 13px;
+        color: #6b6b6b;
         margin-bottom: 15px;
-    }
-    .report-meta span {
-        margin-right: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
     }
     .report-actions {
         display: flex;
         gap: 10px;
     }
-    .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s;
-    }
-    .btn-primary {
-        background: #667eea;
-        color: white;
-    }
-    .btn-primary:hover {
-        background: #5568d3;
-    }
-    .btn-small {
-        padding: 6px 12px;
-        font-size: 13px;
-        background: #6c757d;
-        color: white;
-    }
-    .btn-danger {
-        background: #e74c3c;
-    }
     .empty-state {
         text-align: center;
         padding: 60px 20px;
-        background: white;
+        background: #ffffff;
         border-radius: 8px;
-        color: #999;
+        border: 2px solid #d4c5b9;
+        color: #6b6b6b;
+    }
+    .empty-state p {
+        margin-bottom: 16px;
+    }
+    .empty-state a {
+        color: #5a8f7b;
+        font-weight: 600;
     }
 </style>
