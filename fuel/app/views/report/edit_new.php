@@ -263,6 +263,7 @@
 
 <div class="form-container">
 	<?php echo Form::open(array('action' => 'report/update/' . (isset($report_id) ? $report_id : ''), 'method' => 'post', 'id' => 'report-form', 'enctype' => 'multipart/form-data')); ?>
+	<?php echo Form::csrf(); ?>
 
 	<!-- 写真セクション -->
 	<div class="form-section">

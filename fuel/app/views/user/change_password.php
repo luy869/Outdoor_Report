@@ -6,7 +6,12 @@
 	}
 
 	.password-header {
-		display: flex;
+		display	</div>
+
+	<form method="post" action="/user/update_password">
+		<?php echo Form::csrf(); ?>
+		<div class="form-section">
+			<label class="form-label">現在のパスワード *</label>x;
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 32px;

@@ -9,10 +9,14 @@
 		* { margin: 0; padding: 0; box-sizing: border-box; }
 		body { 
 			font-family: 'Noto Sans JP', sans-serif;
-			background: #f5f7fa;
+			background: #f5f3f0;
 			color: #2c3e50;
-			line-height: 1.6;
-			min-height: 100vh;
+			line-height: 1.6		</div>
+
+		<form action="/auth/register" method="post">
+			<?php echo Form::csrf(); ?>
+			<!-- ① メールアドレス入力 -->
+			<div class="form-group">min-height: 100vh;
 		}
 		.app-header {
 			background: white;
@@ -20,6 +24,7 @@
 			position: sticky;
 			top: 0;
 			z-index: 100;
+			border-bottom: 2px solid #d4c5b9;
 		}
 		.app-header .container {
 			max-width: 1200px;
@@ -35,14 +40,14 @@
 			align-items: center;
 			gap: 10px;
 			text-decoration: none;
-			color: #2c3e50;
+			color: #3d3d3d;
 			font-size: 20px;
 			font-weight: 700;
 		}
 		.app-logo svg {
 			width: 32px;
 			height: 32px;
-			fill: #3b82f6;
+			fill: #5a8f7b;
 		}
 		.app-nav {
 			display: flex;
@@ -51,12 +56,12 @@
 		}
 		.app-nav a {
 			text-decoration: none;
-			color: #64748b;
+			color: #6b6b6b;
 			font-weight: 500;
 			transition: color 0.2s;
 		}
 		.app-nav a:hover {
-			color: #3b82f6;
+			color: #5a8f7b;
 		}
 		.user-menu {
 			display: flex;
@@ -67,50 +72,54 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			color: #64748b;
+			color: #6b6b6b;
 			font-size: 14px;
 		}
 		.user-avatar {
 			width: 32px;
 			height: 32px;
 			border-radius: 50%;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			background: #8b7355;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			color: white;
 			font-weight: 600;
+			border: 2px solid #5a8f7b;
 		}
 		.btn-logout {
 			padding: 8px 16px;
-			background: #ef4444;
+			background: #c85a54;
 			color: white;
-			border: none;
-			border-radius: 6px;
-			text-decoration: none;
-			font-size: 14px;
-			font-weight: 500;
-			transition: all 0.2s;
-			cursor: pointer;
-		}
-		.btn-logout:hover {
-			background: #dc2626;
-			transform: translateY(-1px);
-		}
-		.btn-login {
-			padding: 8px 20px;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			color: white;
-			border: none;
+			border: 2px solid #a84842;
 			border-radius: 6px;
 			text-decoration: none;
 			font-size: 14px;
 			font-weight: 600;
 			transition: all 0.2s;
+			cursor: pointer;
+		}
+		.btn-logout:hover {
+			background: #a84842;
+			transform: translateY(-1px);
+			box-shadow: 0 2px 8px rgba(200, 90, 84, 0.3);
+		}
+		.btn-login {
+			padding: 8px 20px;
+			background: #5a8f7b;
+			color: white;
+			border: 2px solid #4a7a66;
+			border-radius: 6px;
+			text-decoration: none;
+			font-size: 14px;
+			font-weight: 600;
+			transition: all 0.2s;
+			cursor: pointer;
 		}
 		.btn-login:hover {
+			background: #4a7a66;
 			transform: translateY(-2px);
-			box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+			box-shadow: 0 4px 12px rgba(90, 143, 123, 0.3);
 		}
 		/* モーダルスタイル */
 		.modal-overlay {
@@ -120,9 +129,10 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background: rgba(0, 0, 0, 0.5);
+			background: rgba(61, 61, 61, 0.6);
 			z-index: 1000;
 			animation: fadeIn 0.2s;
+			backdrop-filter: blur(2px);
 		}
 		.modal-overlay.active {
 			display: flex;
@@ -130,12 +140,13 @@
 			justify-content: center;
 		}
 		.modal-content {
-			background: white;
-			padding: 40px;
-			border-radius: 16px;
-			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+			background: #ffffff;
+			padding: 48px 40px;
+			border-radius: 8px;
+			border: 2px solid #d4c5b9;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 			width: 90%;
-			max-width: 420px;
+			max-width: 440px;
 			position: relative;
 			animation: slideUp 0.3s;
 		}
@@ -143,83 +154,87 @@
 			position: absolute;
 			top: 16px;
 			right: 16px;
-			width: 32px;
-			height: 32px;
-			border: none;
-			background: #f1f5f9;
+			width: 36px;
+			height: 36px;
+			border: 2px solid #d4c5b9;
+			background: #ffffff;
 			border-radius: 50%;
-			color: #64748b;
-			font-size: 20px;
+			color: #6b6b6b;
+			font-size: 22px;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			transition: all 0.2s;
+			font-weight: 600;
 		}
 		.modal-close:hover {
-			background: #e2e8f0;
-			color: #1e293b;
+			background: #f5f3f0;
+			color: #3d3d3d;
+			border-color: #8b7355;
 		}
 		.modal-header {
 			text-align: center;
 			margin-bottom: 32px;
 		}
 		.modal-icon {
-			width: 64px;
-			height: 64px;
-			margin: 0 auto 16px;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			border-radius: 16px;
+			width: 72px;
+			height: 72px;
+			margin: 0 auto 20px;
+			background: #5a8f7b;
+			border-radius: 12px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			border: 3px solid #4a7a66;
 		}
 		.modal-icon svg {
-			width: 36px;
-			height: 36px;
+			width: 40px;
+			height: 40px;
 			fill: white;
 		}
 		.modal-title {
-			font-size: 24px;
+			font-size: 26px;
 			font-weight: 700;
-			color: #1e293b;
-			margin-bottom: 8px;
+			color: #3d3d3d;
+			margin-bottom: 10px;
 		}
 		.modal-subtitle {
-			color: #64748b;
-			font-size: 14px;
+			color: #6b6b6b;
+			font-size: 15px;
 		}
 		.form-group {
-			margin-bottom: 20px;
+			margin-bottom: 24px;
 		}
 		.form-label {
 			display: block;
 			margin-bottom: 8px;
-			color: #334155;
+			color: #3d3d3d;
 			font-weight: 600;
-			font-size: 14px;
+			font-size: 15px;
 		}
 		.form-input {
 			width: 100%;
 			padding: 12px 16px;
-			border: 1px solid #e2e8f0;
-			border-radius: 8px;
+			border: 2px solid #d4c5b9;
+			border-radius: 6px;
 			font-size: 15px;
 			font-family: 'Noto Sans JP', sans-serif;
+			background: #ffffff;
 			transition: all 0.2s;
 		}
 		.form-input:focus {
 			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			border-color: #5a8f7b;
+			box-shadow: 0 0 0 3px rgba(90, 143, 123, 0.1);
 		}
 		.btn-submit {
 			width: 100%;
 			padding: 14px;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			background: #5a8f7b;
 			color: white;
-			border: none;
-			border-radius: 8px;
+			border: 2px solid #4a7a66;
+			border-radius: 6px;
 			font-size: 16px;
 			font-weight: 600;
 			cursor: pointer;
@@ -229,10 +244,10 @@
 		.btn-register {
 			width: 100%;
 			padding: 14px;
-			background: linear-gradient(135deg, #ea6666ff 0%, #4b98a2ff 100%);
+			background: #8b7355;
 			color: white;
-			border: none;
-			border-radius: 8px;
+			border: 2px solid #6b5a44;
+			border-radius: 6px;
 			font-size: 16px;
 			font-weight: 600;
 			cursor: pointer;
@@ -240,34 +255,42 @@
 			margin-top: 8px;
 		}
 		.btn-submit:hover {
+			background: #4a7a66;
 			transform: translateY(-2px);
-			box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+			box-shadow: 0 4px 12px rgba(90, 143, 123, 0.3);
 		}
 		.btn-register:hover {
+			background: #6b5a44;
 			transform: translateY(-2px);
-			box-shadow: 0 8px 20px rgba(234, 102, 102, 0.4);
+			box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
 		}
 		.test-credentials {
-			margin-top: 24px;
+			margin-top: 28px;
 			padding: 16px;
-			background-color: #eff6ff;
-			border-left: 4px solid #3b82f6;
-			border-radius: 4px;
+			background-color: #f5f3f0;
+			border-left: 4px solid #5a8f7b;
+			border-radius: 6px;
 			font-size: 13px;
 			line-height: 1.6;
 		}
 		.test-credentials strong {
-			color: #1e40af;
+			color: #5a8f7b;
 			display: block;
-			margin-bottom: 8px;
+			margin-bottom: 10px;
+			font-weight: 600;
 		}
 		.test-cred-box {
 			background: white;
 			padding: 12px;
 			border-radius: 6px;
-			margin-top: 8px;
+			margin-top: 10px;
 			font-family: 'Courier New', monospace;
 			font-size: 12px;
+			border: 1px solid #d4c5b9;
+			color: #3d3d3d;
+		}
+		.test-cred-box div {
+			padding: 4px 0;
 		}
 		@keyframes fadeIn {
 			from { opacity: 0; }
@@ -293,6 +316,57 @@
 			font-weight: 700;
 			color: #1e293b;
 			margin-bottom: 24px;
+		}
+		
+		/* 統一カードスタイル */
+		.card {
+			background: #ffffff;
+			border-radius: 8px;
+			padding: 32px;
+			border: 2px solid #d4c5b9;
+			margin-bottom: 24px;
+		}
+		
+		/* 統一ボタンスタイル */
+		.btn {
+			padding: 10px 24px;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-block;
+			font-weight: 600;
+			transition: all 0.2s;
+			font-size: 15px;
+		}
+		.btn-primary {
+			background: #5a8f7b;
+			color: white;
+			border: 2px solid #4a7a66;
+		}
+		.btn-primary:hover {
+			background: #4a7a66;
+			transform: translateY(-1px);
+		}
+		.btn-secondary {
+			background: #6c757d;
+			color: white;
+			border: 2px solid #5a6268;
+		}
+		.btn-secondary:hover {
+			background: #5a6268;
+		}
+		.btn-danger {
+			background: #c85a54;
+			color: white;
+			border: 2px solid #a84842;
+		}
+		.btn-danger:hover {
+			background: #a84842;
+		}
+		.btn-small {
+			padding: 6px 12px;
+			font-size: 13px;
 		}
 	</style>
 </head>
@@ -349,6 +423,7 @@
 			<?php endif; ?>
 			
 			<form action="/auth/login" method="post">
+				<?php echo Form::csrf(); ?>
 				<div class="form-group">
 					<label class="form-label" for="email">メールアドレス</label>
 					<input type="email" name="email" id="email" class="form-input" placeholder="your@email.com" required autofocus>

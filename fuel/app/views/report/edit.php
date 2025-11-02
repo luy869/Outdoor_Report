@@ -54,65 +54,56 @@
 <?php echo Form::close(); ?>
 
 <style>
+    h2 {
+        color: #3d3d3d;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+    
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
     .form-group label {
         display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #333;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #3d3d3d;
+        font-size: 15px;
     }
     .required {
-        color: #e74c3c;
+        color: #c85a54;
     }
     .form-control {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
+        padding: 12px 16px;
+        border: 2px solid #d4c5b9;
+        border-radius: 6px;
+        font-size: 15px;
         font-family: inherit;
+        background: #ffffff;
+        transition: all 0.2s;
     }
     .form-control:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: #5a8f7b;
+        box-shadow: 0 0 0 3px rgba(90, 143, 123, 0.1);
     }
     textarea.form-control {
         resize: vertical;
+        min-height: 150px;
     }
     small {
-        color: #999;
-        font-size: 12px;
+        color: #6b6b6b;
+        font-size: 13px;
+        display: block;
+        margin-top: 6px;
     }
     .form-actions {
         display: flex;
-        gap: 10px;
-        margin-top: 30px;
-    }
-    .btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-        transition: all 0.3s;
-    }
-    .btn-primary {
-        background: #667eea;
-        color: white;
-    }
-    .btn-primary:hover {
-        background: #5568d3;
-    }
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-    }
-    .btn-secondary:hover {
-        background: #5a6268;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 2px solid #d4c5b9;
     }
 </style>

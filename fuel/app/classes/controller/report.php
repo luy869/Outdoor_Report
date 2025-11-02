@@ -1,5 +1,7 @@
 <?php
 
+use Model\Report;
+
 class Controller_Report extends Controller_Template
 {
     public $template = 'template';
@@ -84,6 +86,8 @@ class Controller_Report extends Controller_Template
 
         $results = $query->execute();
 
+        $user_id = Session::get('user_id'); // ログインユーザーID
+
         $data['reports'] = array();
         foreach ($results as $row) {
             // location情報を別途取得
@@ -105,6 +109,25 @@ class Controller_Report extends Controller_Template
                 ->execute()
                 ->current();
 
+            // いいね数を取得
+            $like_count = DB::select(DB::expr('COUNT(*) as count'))
+                ->from('likes')
+                ->where('report_id', $row['id'])
+                ->execute()
+                ->get('count');
+
+            // ログインユーザーがいいねしているか確認
+            $user_liked = false;
+            if ($user_id) {
+                $user_like = DB::select()
+                    ->from('likes')
+                    ->where('user_id', $user_id)
+                    ->where('report_id', $row['id'])
+                    ->execute()
+                    ->as_array();
+                $user_liked = count($user_like) > 0;
+            }
+
             $data['reports'][] = array(
                 'id' => (int)$row['id'],
                 'title' => (string)$row['title'],
@@ -112,8 +135,11 @@ class Controller_Report extends Controller_Template
                 'visit_date' => (string)$row['visit_date'],
                 'created_at' => (string)$row['created_at'],
                 'username' => (string)$row['username'],
+                'user_id' => (int)$row['user_id'],
                 'location_name' => $location_name ? (string)$location_name : '',
                 'image_url' => $first_photo ? (string)$first_photo['image_url'] : null,
+                'like_count' => (int)$like_count,
+                'user_liked' => $user_liked,
             );
         }
 
@@ -133,7 +159,7 @@ class Controller_Report extends Controller_Template
      */
     public function action_view($id = null)
     {
-        $report = Model_Report::find($id);
+        $report = Report::find($id);
 
         if (!$report) {
             Session::set_flash('error', 'レポートが見つかりません');
@@ -225,7 +251,7 @@ class Controller_Report extends Controller_Template
             Response::redirect('report/create');
         }
 
-        $val = Model_Report::validate('create');
+        $val = Report::validate('create');
 
         if ($val->run()) {
             try {
@@ -258,7 +284,7 @@ class Controller_Report extends Controller_Template
                 }
                 
                 // レポート作成
-                $report = Model_Report::forge(array(
+                $report = Report::forge(array(
                     'user_id' => Session::get('user_id'),
                     'location_id' => $location_id,
                     'title' => Input::post('title'),
@@ -384,7 +410,7 @@ class Controller_Report extends Controller_Template
      */
     public function action_edit($id = null)
     {
-        $report = Model_Report::find($id);
+        $report = Report::find($id);
 
         if (!$report) {
             Session::set_flash('error', 'レポートが見つかりません');
@@ -482,14 +508,14 @@ class Controller_Report extends Controller_Template
             Response::redirect('report');
         }
 
-        $report = Model_Report::find($id);
+        $report = Report::find($id);
 
         if (!$report || $report->user_id != Session::get('user_id')) {
             Session::set_flash('error', '編集権限がありません');
             Response::redirect('report');
         }
 
-        $val = Model_Report::validate('update');
+        $val = Report::validate('update');
 
         if ($val->run()) {
             try {
@@ -655,7 +681,7 @@ class Controller_Report extends Controller_Template
     public function action_delete($id = null)
     {
         // ① レポートを取得
-        $report = Model_Report::find($id);
+        $report = Report::find($id);
 
         // ② 権限チェック
         if (!$report || $report->user_id != Session::get('user_id')) {
@@ -707,5 +733,67 @@ class Controller_Report extends Controller_Template
     public function action_mypage()
     {
         Response::redirect('user/profile');
+    }
+
+    /**
+     * いいねをトグル（Ajax用）
+     */
+    public function action_toggle_like($report_id)
+    {
+        // ログインチェック
+        $user_id = Session::get('user_id');
+        if (!$user_id) {
+            return Response::forge(json_encode([
+                'success' => false, 
+                'message' => 'ログインが必要です'
+            ]), 401)->set_header('Content-Type', 'application/json');
+        }
+
+        try {
+            // すでにいいねしているか確認
+            $existing_like = DB::select()
+                ->from('likes')
+                ->where('user_id', $user_id)
+                ->where('report_id', $report_id)
+                ->execute()
+                ->as_array();
+
+            if (count($existing_like) > 0) {
+                // いいね削除
+                DB::delete('likes')
+                    ->where('user_id', $user_id)
+                    ->where('report_id', $report_id)
+                    ->execute();
+                $liked = false;
+            } else {
+                // いいね追加
+                DB::insert('likes')
+                    ->set([
+                        'user_id' => $user_id, 
+                        'report_id' => $report_id
+                    ])
+                    ->execute();
+                $liked = true;
+            }
+
+            // いいね数を取得
+            $like_count = DB::select(DB::expr('COUNT(*) as count'))
+                ->from('likes')
+                ->where('report_id', $report_id)
+                ->execute()
+                ->get('count');
+
+            return Response::forge(json_encode([
+                'success' => true,
+                'liked' => $liked,
+                'like_count' => (int)$like_count
+            ]), 200)->set_header('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+            return Response::forge(json_encode([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]), 500)->set_header('Content-Type', 'application/json');
+        }
     }
 }

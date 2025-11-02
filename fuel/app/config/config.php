@@ -113,10 +113,10 @@ return array(
      * Security settings
      */
     'security' => array(
-        'csrf_autoload'            => false,
+        'csrf_autoload'            => true,
         'csrf_autoload_methods'    => array('post', 'put', 'delete'),
-        'csrf_bad_request_on_fail' => false,
-        'csrf_auto_token'          => false,
+        'csrf_bad_request_on_fail' => true,
+        'csrf_auto_token'          => true,
         'csrf_token_key'           => 'fuel_csrf_token',
         'csrf_expiration'          => 0,
 
@@ -184,9 +184,9 @@ return array(
         // Restrict the domain that the cookie is available to
         'domain'        => null,
         // Only transmit cookies over secure connections
-        'secure'        => false,
+        'secure'        => false, // 本番環境ではtrueに設定
         // Only transmit cookies over HTTP, disabling Javascript access
-        'http_only'     => false,
+        'http_only'     => true, // XSS対策
     ),
 
     /**

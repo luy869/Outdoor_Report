@@ -10,4 +10,9 @@ class Controller_Welcome extends Controller {
         // ログインしていればレポート一覧へ
         Response::redirect('report/index');
     }
+
+    public function action_knockout_test() {
+        // knockout.jsのテストページ
+        return View::forge('welcome/knockout_test');
+    }
 }
