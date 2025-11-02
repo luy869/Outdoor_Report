@@ -1,7 +1,7 @@
 <h2>✏️ 新規レポート作成</h2>
 
 <div id="report-form">
-    <?php echo Form::open(array('action' => 'report/store', 'method' => 'post')); ?>
+    <?php echo Form::open(array('action' => 'report/store', 'method' => 'post', 'enctype' => 'multipart/form-data')); ?>
     <?php echo Form::csrf(); ?>
 
     <div class="form-group">
@@ -25,6 +25,13 @@
     </div>
 
     <div class="form-group">
+        <label for="photos">画像アップロード</label>
+        <input type="file" name="photos[]" id="photos" class="form-control" multiple accept="image/*">
+        <small class="form-text">複数の画像を選択できます（JPEG, PNG, GIF）</small>
+        <div id="image-preview-container" class="image-preview-container"></div>
+    </div>
+
+    <div class="form-group">
         <label for="body">本文 <span class="required">*</span></label>
         <textarea name="body" id="body" class="form-control" rows="10" 
                   placeholder="レポートの内容を入力してください..." required
@@ -34,7 +41,6 @@
         </small>
     </div>
 
-    <!-- タグ管理機能 -->
     <div class="form-group">
         <label>タグ</label>
         <div class="tag-input-container">
@@ -62,7 +68,6 @@
         </select>
     </div>
 
-    <!-- プレビュー -->
     <div class="preview-section" data-bind="visible: showPreview">
         <h3>プレビュー</h3>
         <div class="preview-card">
@@ -88,16 +93,13 @@
     <?php echo Form::close(); ?>
 </div>
 
-<!-- Knockout.js -->
 <script src="https://unpkg.com/knockout@3.5.1/build/output/knockout-latest.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ViewModel
     function ReportViewModel() {
         var self = this;
         
-        // Observable properties
         self.title = ko.observable('');
         self.visitDate = ko.observable('<?php echo date('Y-m-d'); ?>');
         self.body = ko.observable('');
@@ -106,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
         self.newTag = ko.observable('');
         self.showPreview = ko.observable(false);
         
-        // Computed: 文字数カウント
         self.titleCharCount = ko.computed(function() {
             return self.title().length;
         });
@@ -119,25 +120,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return self.body().length;
         });
         
-        // Computed: タグを追加可能か
         self.canAddTag = ko.computed(function() {
             var tag = self.newTag().trim();
             return tag.length > 0 && self.tags().indexOf(tag) === -1;
         });
         
-        // Computed: フォームが有効か
         self.isValid = ko.computed(function() {
             return self.title().trim().length > 0 && 
                    self.body().trim().length > 0 &&
                    self.visitDate().length > 0;
         });
         
-        // Computed: タグを文字列に変換（hidden inputに設定）
         self.tagsAsString = ko.computed(function() {
             return self.tags().join(',');
         });
         
-        // タグを追加
         self.addTag = function() {
             var tag = self.newTag().trim();
             if (tag && self.tags().indexOf(tag) === -1) {
@@ -146,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
-        // Enterキーでタグを追加
         self.addTagOnEnter = function(data, event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
@@ -156,20 +152,53 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         };
         
-        // タグを削除
         self.removeTag = function(tag) {
             self.tags.remove(tag);
         };
         
-        // プレビュー表示切り替え
         self.togglePreview = function() {
             self.showPreview(!self.showPreview());
         };
     }
     
-    // ViewModelをバインド
     var viewModel = new ReportViewModel();
     ko.applyBindings(viewModel, document.getElementById('report-form'));
+    
+    // Image preview
+    document.getElementById('photos').addEventListener('change', function(e) {
+        var previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = '';
+        
+        var files = e.target.files;
+        if (files.length === 0) return;
+        
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            if (!file.type.match('image.*')) continue;
+            
+            var reader = new FileReader();
+            reader.onload = (function(file) {
+                return function(e) {
+                    var previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    
+                    var fileName = document.createElement('div');
+                    fileName.className = 'preview-filename';
+                    fileName.textContent = file.name;
+                    
+                    previewItem.appendChild(img);
+                    previewItem.appendChild(fileName);
+                    previewContainer.appendChild(previewItem);
+                };
+            })(file);
+            
+            reader.readAsDataURL(file);
+        }
+    });
 });
 </script>
 
@@ -220,7 +249,56 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-top: 6px;
     }
     
-    /* タグ関連のスタイル */
+    input[type="file"] {
+        padding: 10px;
+        border: 2px dashed #d4c5b9;
+        background: #fafaf8;
+        cursor: pointer;
+    }
+    input[type="file"]:hover {
+        border-color: #5a8f7b;
+        background: #f5f3f0;
+    }
+    .form-text {
+        font-size: 12px;
+        color: #888;
+        margin-top: 6px;
+    }
+    
+    .image-preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    .preview-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #f5f3f0;
+        border: 2px solid #d4c5b9;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    .preview-item:hover {
+        border-color: #5a8f7b;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .preview-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    .preview-filename {
+        font-size: 12px;
+        color: #6b6b6b;
+        text-align: center;
+        word-break: break-all;
+    }
+    
     .tag-input-container {
         display: flex;
         gap: 10px;
@@ -286,7 +364,6 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #c85a54;
     }
     
-    /* プレビュー関連のスタイル */
     .preview-section {
         margin-top: 32px;
         padding-top: 32px;
