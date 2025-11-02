@@ -163,6 +163,7 @@
 
 	<div class="edit-card">
 		<form method="post" action="/user/update" enctype="multipart/form-data">
+			<?php echo Form::csrf(); ?>
 			<!-- アバター画像 -->
 			<div class="form-section">
 				<h2 class="section-title">プロフィール画像</h2>
