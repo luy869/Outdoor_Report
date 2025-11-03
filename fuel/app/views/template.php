@@ -390,7 +390,11 @@
 			<div class="user-menu">
 				<?php if (Session::get('user_id')): ?>
 					<div class="user-info">
-						<div class="user-avatar"><?php echo mb_substr(Session::get('username', 'ゲスト'), 0, 1); ?></div>
+						<?php if (Session::get('avatar_url')): ?>
+							<img src="<?php echo Session::get('avatar_url'); ?>" alt="Avatar" class="user-avatar" style="border-radius: 50%; object-fit: cover;">
+						<?php else: ?>
+							<div class="user-avatar"><?php echo mb_substr(Session::get('username', 'ゲスト'), 0, 1); ?></div>
+						<?php endif; ?>
 						<span><?php echo htmlspecialchars(Session::get('username', 'ゲスト'), ENT_QUOTES, 'UTF-8'); ?></span>
 					</div>
 					<a href="/auth/logout" class="btn-logout">ログアウト</a>
@@ -466,6 +470,7 @@
 			</div>
 
 			<form action="/auth/register" method="post">
+				<?php echo Form::csrf(); ?>
 				<!-- ① メールアドレス入力 -->
 				<div class="form-group">
 					<label class="form-label" for="register_email">メールアドレス</label>

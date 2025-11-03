@@ -1,4 +1,12 @@
 <?php
+/**
+ * ユーザーコントローラー
+ * 
+ * ユーザープロフィールの表示・編集、パスワード変更を管理
+ * 
+ * @package    Outdoor_Report
+ * @category   Controller
+ */
 
 use Model\User;
 use Model\Report;
@@ -7,6 +15,8 @@ class Controller_User extends Controller_Template
 {
 	/**
 	 * ユーザープロフィール表示
+	 * 
+	 * 自分または他のユーザーのプロフィールと投稿レポートを表示
 	 */
 	public function action_profile($user_id = null)
 	{
@@ -196,8 +206,11 @@ class Controller_User extends Controller_Template
 			->where('id', $user_id)
 			->execute();
 
-		// セッションのユーザー名も更新
+		// セッションのユーザー名とアバターも更新
 		Session::set('username', $username);
+		if ($avatar_url) {
+			Session::set('avatar_url', $avatar_url);
+		}
 
 		Session::set_flash('success', 'プロフィールを更新しました');
 		Response::redirect('user/profile');
