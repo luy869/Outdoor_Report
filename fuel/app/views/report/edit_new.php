@@ -188,26 +188,45 @@
 		display: grid;
 		grid-template-columns: 2fr 1fr auto;
 		gap: 12px;
-		margin-bottom: 12px;
 		align-items: center;
 	}
 	.btn-add-expense {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		padding: 8px 16px;
-		background: #f5f3f0;
-		color: #5a8f7b;
-		border: 2px solid #d4c5b9;
+		padding: 10px 20px;
+		background: #5a8f7b;
+		color: white;
+		border: 2px solid #4a7a66;
 		border-radius: 6px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s;
+		margin-top: 12px;
 	}
 	.btn-add-expense:hover {
-		background: #e8e2db;
-		border-color: #5a8f7b;
+		background: #4a7a66;
+		transform: translateY(-1px);
+	}
+	.btn-remove-expense {
+		width: 36px;
+		height: 36px;
+		background: #ef4444;
+		color: white;
+		border: none;
+		border-radius: 6px;
+		font-size: 20px;
+		line-height: 1;
+		cursor: pointer;
+		transition: all 0.2s;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.btn-remove-expense:hover {
+		background: #dc2626;
+		transform: scale(1.05);
 	}
 	.toggle-container {
 		display: flex;
@@ -290,8 +309,13 @@
 			<div class="photo-preview-item" id="existing-photo-<?php echo $photo['id']; ?>">
 				<img src="<?php echo htmlspecialchars($photo['image_url'], ENT_QUOTES, 'UTF-8'); ?>" alt="既存画像">
 				<button type="button" class="photo-preview-remove" onclick="deleteExistingPhoto(<?php echo $photo['id']; ?>)" title="削除">×</button>
-				<input type="hidden" name="delete_photos[]" id="delete-photo-<?php echo $photo['id']; ?>" value="" disabled>
 			</div>
+			<?php endforeach; ?>
+		</div>
+		<!-- 削除フラグ用のhidden inputs（フォームの外に配置） -->
+		<div id="delete-flags-container">
+			<?php foreach ($photos as $photo): ?>
+			<input type="hidden" name="delete_photos[]" id="delete-photo-<?php echo $photo['id']; ?>" value="" disabled>
 			<?php endforeach; ?>
 		</div>
 		<?php endif; ?>
@@ -367,13 +391,14 @@
 				<div class="expense-item">
 					<input type="text" class="form-input" placeholder="例: ランチ" name="expense_item[]" value="<?php echo htmlspecialchars($expense['item_name'], ENT_QUOTES, 'UTF-8'); ?>">
 					<input type="number" class="form-input" placeholder="例: 550" name="expense_amount[]" min="0" value="<?php echo $expense['amount']; ?>">
-					<button type="button" onclick="this.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">削除</button>
+					<button type="button" onclick="this.parentElement.remove()" class="btn-remove-expense" title="削除">×</button>
 				</div>
 				<?php endforeach; ?>
 			<?php else: ?>
 			<div class="expense-item">
 				<input type="text" class="form-input" placeholder="例: ランチ" name="expense_item[]">
 				<input type="number" class="form-input" placeholder="例: 550" name="expense_amount[]" min="0">
+				<button type="button" onclick="this.parentElement.remove()" class="btn-remove-expense" title="削除">×</button>
 			</div>
 			<?php endif; ?>
 		</div>
@@ -414,18 +439,31 @@
 </div>
 
 <script>
+const MAX_IMAGES = 4;
+
+// 既存画像数をカウント
+function countExistingPhotos() {
+	return document.querySelectorAll('#existing-photos .photo-preview-item').length;
+}
+
 // 既存画像を削除する関数
 function deleteExistingPhoto(photoId) {
 	if (confirm('この画像を削除しますか?')) {
-		// 画像を非表示にする
+		// DOMから画像要素を完全に削除
 		const photoElement = document.getElementById('existing-photo-' + photoId);
-		photoElement.style.opacity = '0.5';
-		photoElement.querySelector('.photo-preview-remove').style.display = 'none';
+		if (photoElement) {
+			photoElement.remove();
+		}
 		
 		// 削除フラグを立てる
 		const deleteInput = document.getElementById('delete-photo-' + photoId);
-		deleteInput.value = photoId;
-		deleteInput.disabled = false;
+		if (deleteInput) {
+			deleteInput.value = photoId;
+			deleteInput.disabled = false;
+		}
+		
+		// 追加ボタンの表示を更新
+		updateAddButtonVisibility();
 	}
 }
 
@@ -435,31 +473,29 @@ let selectedFiles = [];
 // 写真プレビュー機能
 function previewPhotos(event) {
 	const files = Array.from(event.target.files);
-	const container = document.getElementById('photo-preview-container');
+	const existingCount = countExistingPhotos();
+	const totalCount = existingCount + selectedFiles.length + files.length;
+	
+	// 最大枚数チェック
+	if (totalCount > MAX_IMAGES) {
+		alert(`画像は最大${MAX_IMAGES}枚までです。現在${existingCount}枚の既存画像と${selectedFiles.length}枚の新規画像があります。`);
+		event.target.value = ''; // ファイル選択をリセット
+		return;
+	}
 	
 	// 新しいファイルを既存のリストに追加
 	selectedFiles = selectedFiles.concat(files);
 	
 	// プレビューを更新
 	updatePhotoPreview();
+	event.target.value = ''; // ファイル選択をリセット
 }
 
 function updatePhotoPreview() {
 	const container = document.getElementById('photo-preview-container');
 	const uploadArea = document.getElementById('upload-area');
-	const addMoreBtn = document.getElementById('add-more-btn');
 	
 	container.innerHTML = '';
-	
-	// 画像がある場合は破線枠を非表示、追加ボタンを表示
-	if (selectedFiles.length > 0) {
-		uploadArea.classList.add('hidden');
-		addMoreBtn.style.display = 'inline-flex';
-	} else {
-		// 画像がない場合は破線枠を表示、追加ボタンを非表示
-		uploadArea.classList.remove('hidden');
-		addMoreBtn.style.display = 'none';
-	}
 	
 	selectedFiles.forEach((file, index) => {
 		const reader = new FileReader();
@@ -479,6 +515,21 @@ function updatePhotoPreview() {
 	
 	// フォーム送信用にFileListを更新
 	updateFileInput();
+	
+	// 追加ボタンの表示を更新
+	updateAddButtonVisibility();
+}
+
+function updateAddButtonVisibility() {
+	const existingCount = countExistingPhotos();
+	const totalCount = existingCount + selectedFiles.length;
+	const addMoreBtn = document.getElementById('add-more-btn');
+	
+	if (totalCount >= MAX_IMAGES) {
+		addMoreBtn.style.display = 'none';
+	} else {
+		addMoreBtn.style.display = 'inline-flex';
+	}
 }
 
 function removePhoto(index) {
@@ -500,9 +551,9 @@ function addExpense() {
 	const newItem = document.createElement('div');
 	newItem.className = 'expense-item';
 	newItem.innerHTML = `
-		<input type="text" class="form-input" placeholder="費用の項目名" name="expense_item[]">
-		<input type="number" class="form-input" placeholder="金額" name="expense_amount[]" min="0">
-		<button type="button" onclick="this.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">削除</button>
+		<input type="text" class="form-input" placeholder="例: ランチ" name="expense_item[]">
+		<input type="number" class="form-input" placeholder="例: 550" name="expense_amount[]" min="0">
+		<button type="button" onclick="this.parentElement.remove()" class="btn-remove-expense" title="削除">×</button>
 	`;
 	container.appendChild(newItem);
 }

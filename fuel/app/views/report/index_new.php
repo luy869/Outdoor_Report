@@ -259,6 +259,11 @@
 	</form>
 </div>
 
+<!-- CSRFトークン（Ajax用） -->
+<?php if (Session::get('user_id')): ?>
+	<?php echo Form::csrf(); ?>
+<?php endif; ?>
+
 <?php if (isset($reports) && is_array($reports) && count($reports) > 0): ?>
 	<div class="reports-timeline">
 		<?php foreach ($reports as $report): ?>
@@ -340,41 +345,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // いいね機能（Ajax）
 function toggleLike(reportId, buttonElement) {
-    // サーバーにAjaxリクエストを送信
+    // CSRFトークンを取得
+    const csrfToken = document.querySelector('input[name="fuel_csrf_token"]')?.value || '';
+    
     fetch('/report/toggle_like/' + reportId, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            '<?php echo \Config::get('security.csrf_token_key'); ?>': '<?php echo \Session::get(\Config::get('security.csrf_token_key')); ?>'
-        }
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: 'fuel_csrf_token=' + encodeURIComponent(csrfToken)
     })
-    .then(response => response.json())  // JSONに変換
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error('サーバーエラーが発生しました');
+            }).then(data => {
+                throw new Error(data.message || 'エラーが発生しました');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // 成功したらボタンの表示を更新
             const icon = buttonElement.querySelector('.like-icon');
             const count = buttonElement.querySelector('.like-count');
             
-            // ハートの色を変える
             icon.textContent = data.liked ? '❤️' : '🤍';
-            // いいね数を更新
             count.textContent = data.like_count;
-            // data属性も更新
             buttonElement.dataset.liked = data.liked;
             
-            // アニメーション効果
+            // 新しいCSRFトークンでDOMを更新
+            if (data.csrf_token) {
+                const csrfInput = document.querySelector('input[name="fuel_csrf_token"]');
+                if (csrfInput) {
+                    csrfInput.value = data.csrf_token;
+                }
+            }
+            
             buttonElement.style.transform = 'scale(1.2)';
             setTimeout(() => {
                 buttonElement.style.transform = 'scale(1)';
             }, 200);
         } else {
-            // エラーメッセージを表示
             alert(data.message || 'エラーが発生しました');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('通信エラーが発生しました');
+        console.error('Like toggle error:', error);
+        alert(error.message || '通信エラーが発生しました');
     });
 }
 </script>

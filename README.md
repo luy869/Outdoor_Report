@@ -1,144 +1,150 @@
-# Outdoor Report - アウトドア活動記録アプリ
+# 🏔️ Outdoor Report - アウトドア活動記録共有アプリ
 
-## 概要
-Outdoor Reportは、アウトドア活動の記録を管理できるWebアプリケーションです。登山、キャンプ、釣りなどのアウトドアアクティビティの詳細を記録し、写真や経費情報とともに保存できます。
+アウトドア活動の思い出を記録・共有できるWebアプリケーション
 
-## 主な機能
-- **ユーザー認証**: ログイン/新規登録/ログアウト機能
-  - パスワードハッシュ化（password_hash）
-  - レート制限（5回失敗で15分ロックアウト）
-  - セッションローテーション
-- **レポート管理**: CRUD操作（作成・閲覧・編集・削除）
-- **画像アップロード**: 複数枚の写真を添付可能、プレビュー機能付き
-- **タグ管理**: レポートにタグを追加して分類
-- **経費記録**: 各レポートに関連する経費を記録
-- **いいね機能**: 非同期（Ajax）でのいいね/いいね解除
-- **リアクティブUI**: Knockout.jsによる動的フォーム検証と入力補助
+## ✨ 主な機能
 
-## 使用技術
+### 🔐 認証・セキュリティ
+- **ユーザー登録・ログイン**
+  - パスワードハッシュ化（bcrypt）
+  - CSRF保護（トークン自動更新）
+  - セッション固定攻撃対策
+  - レート制限（5回失敗で15分ロック）
+  - 重複メール・ユーザー名チェック
 
-### バックエンド
-- **PHP**: 7.3
-- **FuelPHP**: 1.8（MVCフレームワーク）
-- **MySQL**: 8.0
-- **認証**: Session管理、CSRF保護
+### 📝 レポート作成・管理
+- **リアルタイムプレビュー**
+  - Knockout.jsによる双方向データバインディング
+  - 実際の投稿デザインと一致したプレビュー
+  - 文字数カウント機能
+- **複数画像アップロード（最大4枚）**
+  - 1枚ずつ追加可能
+  - ×ボタンで個別削除
+  - プレビュー表示
+  - ギャラリー形式表示
+- **タグ管理** - 動的追加・削除、検索対応
+- **費用記録** - 複数項目の費用を記録
+- **公開/非公開設定** - トグルスイッチで簡単切り替え
 
-### フロントエンド
-- **Knockout.js**: 3.5.1（MVVMライブラリ）
-- **Fetch API**: 非同期通信
-- **HTML5/CSS3**: レスポンシブデザイン
+### 💚 いいね機能
+- Ajax通信でページ遷移なし
+- CSRFトークン自動更新（連続クリック対応）
+- リアルタイムカウント表示
 
-### インフラ
-- **Docker**: コンテナ化
-- **Docker Compose**: マルチコンテナ管理
-- **Git/GitHub**: バージョン管理
+### 🔍 検索・フィルタ
+- キーワード検索（タイトル・本文）
+- タグ検索
+- 場所検索
+- 日付範囲検索
 
-## データベース設計
+### 👤 プロフィール
+- アバター画像アップロード
+- ヘッダーアイコン自動連動
+- ユーザー情報編集
+- パスワード変更
 
-### テーブル構成
-1. **users** - ユーザー情報
-   - id, username, email, password, created_at
+## 🛠️ 技術スタック
 
-2. **reports** - レポート情報（1:n関係の親）
-   - id, user_id, title, content, location, activity_date, created_at, updated_at
+### Backend
+- PHP 7.3
+- FuelPHP 1.8 - MVCフレームワーク
+- MySQL 8.0
 
-3. **photos** - 写真情報（1:n関係の子）
-   - id, report_id, file_path, created_at
+### Frontend
+- Knockout.js 3.5.1 - MVVMフレームワーク
+- JavaScript ES6 - DataTransfer API, FileReader API
+- HTML5/CSS3 - レスポンシブデザイン
 
-4. **tags** - タグ情報（1:n関係の子）
-   - id, report_id, name, created_at
+### Infrastructure
+- Docker & Docker Compose
+- Git/GitHub
 
-5. **expenses** - 経費情報（1:n関係の子）
-   - id, report_id, category, amount, description, created_at
+## 📊 データベース設計
 
-6. **likes** - いいね情報（1:n関係の子）
-   - id, user_id, report_id, created_at
+主要テーブル:
+- users (ユーザー)
+- reports (レポート)
+- photos (写真)
+- tags (タグ)
+- report_tags (レポート-タグ関連)
+- likes (いいね)
+- expenses (費用)
+- locations (場所)
 
-## セキュリティ対策
-- **CSRF保護**: FuelPHP標準機能（自動トークン検証）
-- **SQLインジェクション対策**: DBクエリビルダー使用（生SQLを使用しない）
-- **パスワードハッシュ化**: password_hash() / password_verify()
-- **レート制限**: ログイン試行回数制限（5回失敗で15分ロックアウト）
-- **セッション管理**: Session::rotate()によるセッションID再生成
-- **入力検証**: メールアドレス検証、パスワード長チェック
-- **エラーログ**: Log::error()による例外処理記録
+詳細は IMPLEMENTATION_GUIDE.md を参照
 
-## 技術要件（インターン課題）
-- ✅ FuelPHP使用
-- ✅ before()メソッドでの認証チェック
-- ✅ config/〜での設定管理
-- ✅ Session使用
-- ✅ namespace利用（Model\Report, Model\User）
-- ✅ \バックスラッシュでグローバル名前空間指定
-- ✅ DB::select()等のクエリビルダー使用（生SQL禁止）
-- ✅ 1:nのテーブル設計（reports ← photos/tags/expenses/likes）
-- ✅ CRUD操作実装
-- ✅ Knockout.js使用
-- ✅ Ajax等の非同期UI（いいね機能）
-- ✅ GitHubでのバージョン管理
+## 🚀 セットアップ
 
-## インターン課題環境構築手順
+### 前提条件
+- Docker & Docker Compose
+- Git
 
-## Dockerの基本知識
-Dockerの基本的な概念については、以下のリンクを参考にしてください：
-- [Docker入門（1）](https://qiita.com/Sicut_study/items/4f301d000ecee98e78c9)
-- [Docker入門（2）](https://qiita.com/takusan64/items/4d622ce1858c426719c7)
+### インストール手順
 
-## セットアップ手順
+1. リポジトリのクローン
+\`\`\`bash
+git clone https://github.com/luy869/Outdoor_Report.git
+cd Outdoor_Report
+\`\`\`
 
-1. **リポジトリをクローン**
-   ```bash
-   git clone <リポジトリURL>
-   ```
+2. Dockerコンテナの起動
+\`\`\`bash
+cd docker
+docker-compose up -d
+\`\`\`
 
-2. **dockerディレクトリに移動**
-   ```bash
-   cd docker
-   ```
+3. ブラウザでアクセス
+\`\`\`
+http://localhost:8080
+\`\`\`
 
-3. **データベース名の設定**
-   `docker-compose.yml` 内の `db` サービスにある `MYSQL_DATABASE` の値を、各自任意のデータベース名に設定してください。
-   
-   例:
-   ```yaml
-   environment:
-     MYSQL_ROOT_PASSWORD: root
-     MYSQL_DATABASE: <your_database_name>  # 任意のデータベース名を指定
-   ```
+詳細は SETUP.md を参照
 
-4. **Dockerイメージのビルド**
-   ```bash
-   docker-compose build
-   ```
+## 🔒 セキュリティ機能
 
-5. **コンテナの起動**
-   ```bash
-   docker-compose up -d
-   ```
-6. **ブラウザからlocalhostにアクセス**
+- CSRF保護（全フォーム）
+- XSS対策（出力エスケープ）
+- SQLインジェクション対策（プリペアドステートメント）
+- パスワードハッシュ化（bcrypt）
+- セッション固定攻撃対策
+- レート制限（ログイン試行）
 
-## PHP周りのバージョン
-- **PHP**: 7.3
-- **FuelPHP**: 1.8
+## 📝 機能チェックリスト
 
-## ログについて
-- **アクセスログ**: Dockerのコンテナのログ
-- **FuelPHPのエラーログ**: /var/www/html/intern_kadai/fuel/app/logs/
-  - 年月日ごとにログが管理されている
-  - tail -f {見たいログファイル}でログを出力
+✅ 全30項目の機能実装完了
 
-## MySQLコンテナ設定
-このプロジェクトには、MySQLを使用するDBコンテナが含まれています。設定は以下の通りです。
+詳細は CHECKLIST.md を参照
 
-- **MySQLバージョン**: 8.0
-- **ポート**: `3306`
-- **環境変数**:
-  - `MYSQL_ROOT_PASSWORD`: root
-  - `MYSQL_DATABASE`: 各自設定したデータベース名
+## 📁 プロジェクト構造
 
-### アクセス情報
-- **ホスト**: `localhost`
-- **ポート**: `3306`
-- **ユーザー名**: `root`
-- **パスワード**: `root`
-- **データベース名**: 各自設定した名前
+\`\`\`
+Outdoor_Report/
+├── docker/              # Docker設定
+├── fuel/app/            # アプリケーション本体
+│   ├── classes/         # コントローラー・モデル
+│   ├── views/           # ビュー
+│   └── config/          # 設定ファイル
+├── public/              # 公開ディレクトリ
+│   └── assets/uploads/  # アップロード画像
+├── sql_archive/         # SQLファイル
+└── *.md                 # ドキュメント
+\`\`\`
+
+## 📄 ライセンス
+
+MIT License
+
+## 👤 作成者
+
+luy869
+
+## 🔗 関連ドキュメント
+
+- [CHECKLIST.md](CHECKLIST.md) - 機能チェックリスト
+- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) - 実装ガイド
+- [SETUP.md](SETUP.md) - セットアップ詳細
+- [TESTING.md](TESTING.md) - テストガイド
+
+---
+
+**Outdoor Report** - あなたのアウトドアの思い出を記録・共有しよう 🏕️
