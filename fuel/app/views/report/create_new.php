@@ -25,10 +25,22 @@
     </div>
 
     <div class="form-group">
-        <label for="photos">画像アップロード</label>
-        <input type="file" name="photos[]" id="photos" class="form-control" multiple accept="image/*">
-        <small class="form-text">複数の画像を選択できます（JPEG, PNG, GIF）</small>
+        <label for="location">場所</label>
+        <input type="text" name="location" id="location" class="form-control" 
+               placeholder="例: 富士山、高尾山">
+        <small class="form-text">訪問した場所を入力してください</small>
+    </div>
+
+    <div class="form-group">
+        <label for="photos">画像アップロード（最大4枚）</label>
+        <input type="file" id="photos-input" class="form-control" accept="image/*" style="display: none;">
+        <button type="button" class="btn-add-photo" onclick="document.getElementById('photos-input').click()">
+            + 画像を追加
+        </button>
+        <small class="form-text">1枚ずつ追加できます（JPEG, PNG, GIF）</small>
         <div id="image-preview-container" class="image-preview-container"></div>
+        <!-- 実際にサーバーに送信する隠しinput -->
+        <input type="file" name="photos[]" id="photos-hidden" multiple accept="image/*" style="display: none;">
     </div>
 
     <div class="form-group">
@@ -61,22 +73,52 @@
     </div>
 
     <div class="form-group">
+        <label>費用</label>
+        <div id="expenses-container">
+            <div class="expense-item">
+                <input type="text" class="form-control" placeholder="例: ランチ" name="expense_item[]">
+                <input type="number" class="form-control" placeholder="例: 550" name="expense_amount[]" min="0">
+                <button type="button" onclick="this.parentElement.remove()" class="btn-remove-expense" title="削除">×</button>
+            </div>
+        </div>
+        <button type="button" class="btn-add-expense" onclick="addExpense()">
+            <span>+</span> 費用を追加
+        </button>
+    </div>
+
+    <div class="form-group">
         <label for="privacy">公開設定</label>
         <select name="privacy" id="privacy" class="form-control" data-bind="value: privacy">
-            <option value="1">公開</option>
-            <option value="0">非公開</option>
+            <option value="0">公開</option>
+            <option value="1">非公開</option>
         </select>
     </div>
 
     <div class="preview-section" data-bind="visible: showPreview">
         <h3>プレビュー</h3>
         <div class="preview-card">
-            <h4 data-bind="text: title() || '(タイトル未入力)'"></h4>
-            <p class="preview-date" data-bind="text: visitDate"></p>
-            <div class="preview-tags" data-bind="foreach: tags">
-                <span class="preview-tag" data-bind="text: $data"></span>
+            <!-- 画像ギャラリー -->
+            <div class="preview-gallery" id="preview-gallery"></div>
+            
+            <!-- コンテンツ部分 -->
+            <div class="preview-content">
+                <h4 class="preview-title" data-bind="text: title() || '(タイトル未入力)'"></h4>
+                
+                <div class="preview-meta">
+                    <div class="meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                        </svg>
+                        <span data-bind="text: visitDate"></span>
+                    </div>
+                </div>
+                
+                <div class="preview-tags" data-bind="foreach: tags">
+                    <span class="preview-tag" data-bind="text: '#' + $data"></span>
+                </div>
+                
+                <p class="preview-body" data-bind="text: body() || '(本文未入力)'"></p>
             </div>
-            <p class="preview-body" data-bind="text: body() || '(本文未入力)'"></p>
         </div>
     </div>
 
@@ -97,13 +139,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 画像管理用の配列
+    var selectedFiles = [];
+    var MAX_IMAGES = 4;
+    
     function ReportViewModel() {
         var self = this;
         
         self.title = ko.observable('');
         self.visitDate = ko.observable('<?php echo date('Y-m-d'); ?>');
         self.body = ko.observable('');
-        self.privacy = ko.observable('1');
+        self.privacy = ko.observable('0'); // 0 = 公開がデフォルト
         self.tags = ko.observableArray([]);
         self.newTag = ko.observable('');
         self.showPreview = ko.observable(false);
@@ -158,47 +204,132 @@ document.addEventListener('DOMContentLoaded', function() {
         
         self.togglePreview = function() {
             self.showPreview(!self.showPreview());
+            if (self.showPreview()) {
+                updatePreviewGallery();
+            }
         };
     }
     
     var viewModel = new ReportViewModel();
     ko.applyBindings(viewModel, document.getElementById('report-form'));
     
-    // Image preview
-    document.getElementById('photos').addEventListener('change', function(e) {
-        var previewContainer = document.getElementById('image-preview-container');
-        previewContainer.innerHTML = '';
+    // 画像追加処理
+    document.getElementById('photos-input').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
         
-        var files = e.target.files;
-        if (files.length === 0) return;
+        if (!file.type.match('image.*')) {
+            alert('画像ファイルを選択してください');
+            this.value = '';
+            return;
+        }
         
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            if (!file.type.match('image.*')) continue;
+        if (selectedFiles.length >= MAX_IMAGES) {
+            alert('画像は最大' + MAX_IMAGES + '枚までです');
+            this.value = '';
+            return;
+        }
+        
+        selectedFiles.push(file);
+        updateImagePreview();
+        updateHiddenInput();
+        this.value = ''; // リセット
+    });
+    
+    function updateImagePreview() {
+        var container = document.getElementById('image-preview-container');
+        container.innerHTML = '';
+        
+        selectedFiles.forEach(function(file, index) {
+            var previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            
+            var img = document.createElement('img');
+            img.className = 'preview-image';
             
             var reader = new FileReader();
-            reader.onload = (function(file) {
-                return function(e) {
-                    var previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'preview-image';
-                    
-                    var fileName = document.createElement('div');
-                    fileName.className = 'preview-filename';
-                    fileName.textContent = file.name;
-                    
-                    previewItem.appendChild(img);
-                    previewItem.appendChild(fileName);
-                    previewContainer.appendChild(previewItem);
-                };
-            })(file);
-            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(file);
+            
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-image';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = function() {
+                removeImage(index);
+            };
+            
+            var fileName = document.createElement('div');
+            fileName.className = 'preview-filename';
+            fileName.textContent = file.name;
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(removeBtn);
+            previewItem.appendChild(fileName);
+            container.appendChild(previewItem);
+        });
+        
+        // プレビューが表示されていれば更新
+        if (viewModel.showPreview()) {
+            updatePreviewGallery();
         }
-    });
+    }
+    
+    function updatePreviewGallery() {
+        var gallery = document.getElementById('preview-gallery');
+        if (!gallery) return;
+        
+        gallery.innerHTML = '';
+        
+        if (selectedFiles.length === 0) {
+            gallery.style.display = 'none';
+            return;
+        }
+        
+        gallery.style.display = 'grid';
+        gallery.className = 'preview-gallery ' + (selectedFiles.length === 1 ? 'single' : '');
+        
+        selectedFiles.forEach(function(file, index) {
+            var item = document.createElement('div');
+            item.className = 'preview-gallery-item';
+            
+            var img = document.createElement('img');
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            if (index === 0 && selectedFiles.length > 1) {
+                var count = document.createElement('div');
+                count.className = 'preview-photo-count';
+                count.textContent = '+' + (selectedFiles.length - 1) + ' 枚';
+                item.appendChild(count);
+            }
+            
+            item.appendChild(img);
+            gallery.appendChild(item);
+        });
+    }
+    
+    function removeImage(index) {
+        selectedFiles.splice(index, 1);
+        updateImagePreview();
+        updateHiddenInput();
+    }
+    
+    function updateHiddenInput() {
+        var hiddenInput = document.getElementById('photos-hidden');
+        var dataTransfer = new DataTransfer();
+        
+        selectedFiles.forEach(function(file) {
+            dataTransfer.items.add(file);
+        });
+        
+        hiddenInput.files = dataTransfer.files;
+    }
 });
 </script>
 
@@ -265,6 +396,22 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-top: 6px;
     }
     
+    .btn-add-photo {
+        padding: 12px 24px;
+        background: #5a8f7b;
+        color: white;
+        border: 2px solid #4a7a66;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    .btn-add-photo:hover {
+        background: #4a7a66;
+        transform: translateY(-1px);
+    }
+    
     .image-preview-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -272,6 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-top: 16px;
     }
     .preview-item {
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -297,6 +445,29 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #6b6b6b;
         text-align: center;
         word-break: break-all;
+    }
+    .btn-remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        background: rgba(200, 90, 84, 0.95);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .btn-remove-image:hover {
+        background: rgba(200, 90, 84, 1);
+        transform: scale(1.1);
     }
     
     .tag-input-container {
@@ -376,16 +547,20 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 16px;
     }
     .preview-card {
-        background: #f5f3f0;
+        background: #ffffff;
         padding: 24px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 2px solid #d4c5b9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .preview-meta {
+        margin-bottom: 16px;
     }
     .preview-card h4 {
         color: #3d3d3d;
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 700;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
     .preview-date {
         color: #6b6b6b;
@@ -399,12 +574,45 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 16px;
     }
     .preview-tag {
-        padding: 4px 12px;
-        background: #5a8f7b;
-        color: white;
-        border-radius: 12px;
-        font-size: 12px;
+        padding: 6px 14px;
+        background: #e8f5f0;
+        color: #5a8f7b;
+        border-radius: 16px;
+        font-size: 13px;
         font-weight: 500;
+        border: 1px solid #d4c5b9;
+    }
+    .preview-gallery {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .preview-gallery.single {
+        grid-template-columns: 1fr;
+    }
+    .preview-gallery-item {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f5f3f0;
+    }
+    .preview-gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .preview-photo-count {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
     }
     .preview-body {
         color: #555;
@@ -427,4 +635,62 @@ document.addEventListener('DOMContentLoaded', function() {
     .btn-preview:hover {
         background: #6b5a44;
     }
+    .expense-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 12px;
+        align-items: center;
+    }
+    .btn-add-expense {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: #5a8f7b;
+        color: white;
+        border: 2px solid #4a7a66;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 12px;
+    }
+    .btn-add-expense:hover {
+        background: #4a7a66;
+        transform: translateY(-1px);
+    }
+    .btn-remove-expense {
+        width: 36px;
+        height: 36px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-remove-expense:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+    }
 </style>
+
+<script>
+function addExpense() {
+    const container = document.getElementById('expenses-container');
+    const newExpense = document.createElement('div');
+    newExpense.className = 'expense-item';
+    newExpense.innerHTML = `
+        <input type="text" class="form-control" placeholder="例: ランチ" name="expense_item[]">
+        <input type="number" class="form-control" placeholder="例: 550" name="expense_amount[]" min="0">
+        <button type="button" onclick="this.parentElement.remove()" class="btn-remove-expense" title="削除">×</button>
+    `;
+    container.appendChild(newExpense);
+}
+</script>

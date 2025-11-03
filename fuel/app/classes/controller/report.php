@@ -1,4 +1,12 @@
 <?php
+/**
+ * レポートコントローラー
+ * 
+ * アウトドアレポートのCRUD操作、検索、いいね機能を管理
+ * 
+ * @package    Outdoor_Report
+ * @category   Controller
+ */
 
 use Model\Report;
 
@@ -6,24 +14,31 @@ class Controller_Report extends Controller_Template
 {
     public $template = 'template';
 
+    /**
+     * アクション実行前の処理
+     * ログイン認証が必要なアクションをチェック
+     */
     public function before()
     {
         parent::before();
+        
+        $current_action = str_replace('action_', '', Request::active()->action);
 
         // ログインが必要なアクション
         $login_required_actions = ['mypage', 'create', 'store', 'edit', 'update', 'delete'];
-        $current_action = str_replace('action_', '', Request::active()->action);
         
         // ログインが必要なアクションでログインしていない場合
         if (in_array($current_action, $login_required_actions) && !Session::get('user_id')) {
             Session::set_flash('error', 'ログインが必要です');
-            // 元のページに戻れるようにリファラーを保存
             Response::redirect('report/index');
         }
     }
 
     /**
      * レポート一覧（タイムライン）+ 検索機能
+     * 
+     * 公開レポートを時系列で表示
+     * キーワード、タグ、場所、日付範囲での絞り込み検索に対応
      */
     public function action_index()
     {
@@ -783,16 +798,27 @@ class Controller_Report extends Controller_Template
                 ->execute()
                 ->get('count');
 
+            // 新しいCSRFトークンを生成
+            $new_csrf_token = \Security::fetch_token();
+
             return Response::forge(json_encode([
                 'success' => true,
                 'liked' => $liked,
-                'like_count' => (int)$like_count
+                'like_count' => (int)$like_count,
+                'csrf_token' => $new_csrf_token
             ]), 200)->set_header('Content-Type', 'application/json');
 
-        } catch (Exception $e) {
+        } catch (\Database_Exception $e) {
+            Log::error('Like toggle database error: ' . $e->getMessage(), __METHOD__);
             return Response::forge(json_encode([
                 'success' => false, 
-                'message' => $e->getMessage()
+                'message' => 'データベースエラーが発生しました'
+            ]), 500)->set_header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            Log::error('Like toggle error: ' . $e->getMessage(), __METHOD__);
+            return Response::forge(json_encode([
+                'success' => false, 
+                'message' => 'エラーが発生しました'
             ]), 500)->set_header('Content-Type', 'application/json');
         }
     }
