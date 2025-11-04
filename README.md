@@ -50,6 +50,18 @@ docker-compose up -d
 cd ..
 ```
 
+**初回起動時やパスワードエラーが出る場合:**
+```bash
+# ボリュームを削除して再作成
+cd docker
+docker-compose down -v
+docker-compose up -d
+cd ..
+
+# MySQLの起動完了を待つ（30秒程度）
+sleep 30
+```
+
 コンテナが起動したか確認:
 ```bash
 docker-compose -f docker/docker-compose.yml ps
@@ -58,10 +70,19 @@ docker-compose -f docker/docker-compose.yml ps
 #### 3. データベースの初期化
 ```bash
 # データベース作成
-docker-compose -f docker/docker-compose.yml exec db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # テーブル作成
-docker-compose -f docker/docker-compose.yml exec db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
+docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
+```
+
+**再構築が必要な場合（データベースをリセット）:**
+```bash
+# データベースを削除して再作成
+docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 -e "DROP DATABASE IF EXISTS outdoor_reports; CREATE DATABASE outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# テーブル作成
+docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
 ```
 
 #### 4. テストデータの挿入（オプション）
@@ -84,6 +105,17 @@ http://localhost
 ```
 
 テストアカウントでログインして動作確認してください。
+
+**Apacheのデフォルトページが表示される場合:**
+```bash
+# コンテナ内でファイルを確認
+docker-compose -f docker/docker-compose.yml exec app ls -la /var/www/html/my_fuel_project/public
+
+# 問題がある場合はコンテナを再起動
+cd docker
+docker-compose restart
+cd ..
+```
 
 ### トラブルシューティング
 
