@@ -47,26 +47,27 @@ cd Outdoor_Report
 ```bash
 cd docker
 docker-compose up -d
+cd ..
 ```
 
 コンテナが起動したか確認:
 ```bash
-docker-compose ps
+docker-compose -f docker/docker-compose.yml ps
 ```
 
 #### 3. データベースの初期化
 ```bash
 # データベース作成
-docker-compose exec db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+docker-compose -f docker/docker-compose.yml exec db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # テーブル作成
-docker-compose exec db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
+docker-compose -f docker/docker-compose.yml exec db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
 ```
 
 #### 4. テストデータの挿入（オプション）
 開発やテスト用に、サンプルアカウントとレポートデータを挿入:
 ```bash
-docker-compose exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/insert_test_data.sql
+docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/insert_test_data.sql
 ```
 
 **テストアカウント:**
