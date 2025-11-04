@@ -38,35 +38,35 @@
 ### インストール手順
 
 #### 1. リポジトリのクローン
-\`\`\`bash
+```bash
 git clone https://github.com/luy869/Outdoor_Report.git
 cd Outdoor_Report
-\`\`\`
+```
 
 #### 2. Dockerコンテナの起動
-\`\`\`bash
+```bash
 docker-compose up -d
-\`\`\`
+```
 
 コンテナが起動したか確認:
-\`\`\`bash
+```bash
 docker-compose ps
-\`\`\`
+```
 
 #### 3. データベースの初期化
-\`\`\`bash
+```bash
 # データベース作成
 docker-compose exec db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # テーブル作成
 docker-compose exec db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
-\`\`\`
+```
 
 #### 4. テストデータの挿入（オプション）
 開発やテスト用に、サンプルアカウントとレポートデータを挿入:
-\`\`\`bash
+```bash
 docker-compose exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/insert_test_data.sql
-\`\`\`
+```
 
 **テストアカウント:**
 | ユーザー名 | メール | パスワード | レポート数 |
@@ -77,9 +77,9 @@ docker-compose exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/inse
 | testuser4 | test4@example.com | password | 0件 |
 
 #### 5. ブラウザでアクセス
-\`\`\`
+```
 http://localhost
-\`\`\`
+```
 
 テストアカウントでログインして動作確認してください。
 
