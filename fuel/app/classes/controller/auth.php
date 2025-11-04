@@ -82,7 +82,7 @@ class Controller_Auth extends Controller_Template
 				Session::set('user_id', $user['id']);
 				Session::set('username', $user['username']);
 				Session::set('email', $user['email']);
-				Session::set('avatar_url', $user['avatar_url']);
+				Session::set('avatar_url', isset($user['avatar_url']) ? $user['avatar_url'] : null);
 				
 				Session::set_flash('success', 'ログインに成功しました!');
 				
