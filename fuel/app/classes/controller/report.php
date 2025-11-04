@@ -643,6 +643,8 @@ class Controller_Report extends Controller_Template
                     }
                     
                     // 新しい写真のアップロード
+                    \Log::info('Files received: ' . print_r($_FILES, true));
+                    
                     if (!empty($_FILES['photos']['name'][0])) {
                         $upload_config = array(
                             'path' => DOCROOT.'assets/uploads/photos/',
@@ -660,16 +662,36 @@ class Controller_Report extends Controller_Template
                             Upload::save();
                             $files = Upload::get_files();
                             
+                            \Log::info('Upload successful: ' . count($files) . ' files');
+                            
+                            // sort_orderを取得（既存画像の最大値+1から）
+                            $max_sort = DB::select(DB::expr('COALESCE(MAX(sort_order), 0) as max_sort'))
+                                ->from('photos')
+                                ->where('report_id', $id)
+                                ->execute()
+                                ->current();
+                            $next_sort = $max_sort ? $max_sort['max_sort'] + 1 : 1;
+                            
                             foreach ($files as $file) {
                                 DB::insert('photos')
                                     ->set(array(
                                         'report_id' => $id,
                                         'image_url' => '/assets/uploads/photos/' . $file['saved_as'],
+                                        'sort_order' => $next_sort++,
                                         'created_at' => date('Y-m-d H:i:s'),
                                     ))
                                     ->execute();
                             }
+                        } else {
+                            // アップロードエラーをログに記録
+                            $errors = Upload::get_errors();
+                            \Log::error('Upload validation failed: ' . print_r($errors, true));
+                            foreach ($errors as $error) {
+                                \Log::error('Photo upload error: ' . $error['errors'][0]['message']);
+                            }
                         }
+                    } else {
+                        \Log::info('No files in $_FILES or empty filename');
                     }
                     
                     DB::commit_transaction();

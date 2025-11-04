@@ -2,6 +2,16 @@
 
 アウトドア活動の思い出を記録・共有できるWebアプリケーション
 
+## 主な機能
+
+- **ユーザー認証** - メールアドレス/パスワードでの登録・ログイン
+- **レポート投稿** - タイトル、本文、訪問日、場所、タグ、費用、写真（最大4枚）
+- **タイムライン** - 公開レポートの時系列表示
+- **検索機能** - キーワード、タグ、場所、日付範囲での絞り込み
+- **いいね機能** - レポートへのいいね・いいね解除
+- **プロフィール** - ユーザー情報・投稿一覧の表示と編集
+- **公開/非公開設定** - レポートの公開範囲を選択可能
+
 
 ## 技術スタック
 
@@ -50,36 +60,10 @@ docker-compose up -d
 cd ..
 ```
 
-**初回起動時やパスワードエラーが出る場合:**
-```bash
-# ボリュームを削除して再作成
-cd docker
-docker-compose down -v
-docker-compose up -d
-cd ..
-
-# MySQLの起動完了を待つ（30秒程度）
-sleep 30
-```
-
-コンテナが起動したか確認:
-```bash
-docker-compose -f docker/docker-compose.yml ps
-```
-
 #### 3. データベースの初期化
 ```bash
 # データベース作成
 docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# テーブル作成
-docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
-```
-
-**再構築が必要な場合（データベースをリセット）:**
-```bash
-# データベースを削除して再作成
-docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 -e "DROP DATABASE IF EXISTS outdoor_reports; CREATE DATABASE outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # テーブル作成
 docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
@@ -101,41 +85,20 @@ docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdo
 
 #### 5. ブラウザでアクセス
 ```
-http://localhost
+http://localhost:8080
 ```
 
 テストアカウントでログインして動作確認してください。
 
-**Apacheのデフォルトページが表示される場合:**
-```bash
-# コンテナ内でファイルを確認
-docker-compose -f docker/docker-compose.yml exec app ls -la /var/www/html/my_fuel_project/public
-
-# 問題がある場合はコンテナを再起動
-cd docker
-docker-compose restart
-cd ..
-```
-
-### トラブルシューティング
-
-**ポート競合エラー:**
-- ローカルでMySQLが起動している場合、`docker-compose.yml`のポート設定を確認（デフォルト: 3307）
-
-**データベース接続エラー:**
-- `fuel/app/config/development/db.php`の設定を確認
-- ホスト: `db` (コンテナ内) / `127.0.0.1` (ホストから)
-- ポート: `3306` (コンテナ内) / `3307` (ホストから)
-- パスワード: `3556`
-
 
 ## セキュリティ機能
 
-- CSRF
-- XSS対策
-- SQLインジェクション対策
-- パスワードハッシュ化
-- レート制限（ログイン）
-- アップロード検証
+- **CSRF対策** - フォーム送信時にトークン検証
+- **XSS対策** - 出力時の自動エスケープ
+- **SQLインジェクション対策** - プリペアドステートメント使用
+- **パスワードハッシュ化** - bcryptによる安全な保存
+- **レート制限** - ログイン試行回数の制限
+- **アップロード検証** - ファイル形式・サイズのチェック（最大20MB）
+
 
 

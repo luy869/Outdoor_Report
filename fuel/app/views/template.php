@@ -11,12 +11,8 @@
 			font-family: 'Noto Sans JP', sans-serif;
 			background: #f5f3f0;
 			color: #2c3e50;
-			line-height: 1.6		</div>
-
-		<form action="/auth/register" method="post">
-			<?php echo Form::csrf(); ?>
-			<!-- ① メールアドレス入力 -->
-			<div class="form-group">min-height: 100vh;
+			line-height: 1.6;
+			min-height: 100vh;
 		}
 		.app-header {
 			background: white;
