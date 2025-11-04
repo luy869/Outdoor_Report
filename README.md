@@ -45,6 +45,7 @@ cd Outdoor_Report
 
 #### 2. Dockerコンテナの起動
 ```bash
+cd docker
 docker-compose up -d
 ```
 
