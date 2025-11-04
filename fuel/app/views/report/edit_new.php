@@ -472,23 +472,31 @@ let selectedFiles = [];
 
 // 写真プレビュー機能
 function previewPhotos(event) {
+	console.log('previewPhotos called');
+	console.log('Files selected:', event.target.files);
+	
 	const files = Array.from(event.target.files);
 	const existingCount = countExistingPhotos();
 	const totalCount = existingCount + selectedFiles.length + files.length;
 	
+	console.log('Existing:', existingCount, 'Selected:', selectedFiles.length, 'New:', files.length, 'Total:', totalCount);
+	
 	// 最大枚数チェック
 	if (totalCount > MAX_IMAGES) {
 		alert(`画像は最大${MAX_IMAGES}枚までです。現在${existingCount}枚の既存画像と${selectedFiles.length}枚の新規画像があります。`);
-		event.target.value = ''; // ファイル選択をリセット
+		event.target.value = ''; 
 		return;
 	}
 	
 	// 新しいファイルを既存のリストに追加
 	selectedFiles = selectedFiles.concat(files);
+	console.log('Total selected files:', selectedFiles.length);
 	
 	// プレビューを更新
 	updatePhotoPreview();
-	event.target.value = ''; // ファイル選択をリセット
+	
+	// ファイル選択をリセットしない（重要！）
+	// これにより、選択したファイルがそのまま送信される
 }
 
 function updatePhotoPreview() {
@@ -514,7 +522,20 @@ function updatePhotoPreview() {
 	});
 	
 	// フォーム送信用にFileListを更新
-	updateFileInput();
+	try {
+		const fileInput = document.getElementById('photo-input');
+		if (fileInput && selectedFiles.length > 0) {
+			const dt = new DataTransfer();
+			selectedFiles.forEach(file => {
+				dt.items.add(file);
+			});
+			fileInput.files = dt.files;
+			console.log('Updated file input with', fileInput.files.length, 'files');
+		}
+	} catch (error) {
+		console.error('Error updating file input:', error);
+		console.log('DataTransfer may not be supported. Files:', selectedFiles.length);
+	}
 	
 	// 追加ボタンの表示を更新
 	updateAddButtonVisibility();
@@ -557,4 +578,46 @@ function addExpense() {
 	`;
 	container.appendChild(newItem);
 }
+
+// フォーム送信時のデバッグ
+document.addEventListener('DOMContentLoaded', function() {
+	const form = document.getElementById('report-form');
+	if (form) {
+		console.log('Form found, adding submit listener');
+		form.addEventListener('submit', function(e) {
+			console.log('=== Form Submit ===');
+			console.log('Selected files count:', selectedFiles.length);
+			
+			// file inputの状態を確認
+			const photoInput = document.getElementById('photo-input');
+			if (photoInput) {
+				console.log('Photo input files:', photoInput.files.length);
+				for (let i = 0; i < photoInput.files.length; i++) {
+					console.log(`  File ${i}:`, photoInput.files[i].name, photoInput.files[i].size);
+				}
+			} else {
+				console.error('Photo input not found!');
+			}
+			
+			// すべてのfile inputを確認
+			const allFileInputs = form.querySelectorAll('input[type="file"][name="photos[]"]');
+			console.log('Total photo inputs in form:', allFileInputs.length);
+			
+			let totalFiles = 0;
+			allFileInputs.forEach((input, idx) => {
+				console.log(`Input ${idx}: files=${input.files.length}`);
+				totalFiles += input.files.length;
+			});
+			console.log('Total files to upload:', totalFiles);
+			
+			if (totalFiles === 0 && selectedFiles.length > 0) {
+				console.error('ERROR: Files selected but not in form inputs!');
+				alert('エラー: ファイルが正しく設定されていません。ブラウザのコンソールを確認してください。');
+				// e.preventDefault(); // デバッグ用にコメントアウト
+			}
+		});
+	} else {
+		console.error('Form not found!');
+	}
+});
 </script>
