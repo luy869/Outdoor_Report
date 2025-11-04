@@ -40,6 +40,10 @@ RUN DEFAULT_SITE_FILE=/etc/apache2/sites-enabled/000-default.conf && \
     TMP=$(mktemp) && \
     sed 's!/var/www/html!/var/www/html/my_fuel_project/public!' $DEFAULT_SITE_FILE > $TMP && \
     echo SetEnv FUEL_ENV development >> $TMP && \
+    echo '<Directory /var/www/html/my_fuel_project/public>' >> $TMP && \
+    echo '    AllowOverride All' >> $TMP && \
+    echo '    Require all granted' >> $TMP && \
+    echo '</Directory>' >> $TMP && \
     mv $TMP $DEFAULT_SITE_FILE
 
 # FuelPHPのログディレクトリとキャッシュディレクトリを作成し、権限を設定
