@@ -643,8 +643,6 @@ class Controller_Report extends Controller_Template
                     }
                     
                     // 新しい写真のアップロード
-                    \Log::info('Files received: ' . print_r($_FILES, true));
-                    
                     if (!empty($_FILES['photos']['name'][0])) {
                         $upload_config = array(
                             'path' => DOCROOT.'assets/uploads/photos/',
@@ -685,7 +683,6 @@ class Controller_Report extends Controller_Template
                         } else {
                             // アップロードエラーをログに記録
                             $errors = Upload::get_errors();
-                            \Log::error('Upload validation failed: ' . print_r($errors, true));
                             foreach ($errors as $error) {
                                 \Log::error('Photo upload error: ' . $error['errors'][0]['message']);
                             }
