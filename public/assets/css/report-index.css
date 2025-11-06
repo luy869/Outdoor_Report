@@ -1,0 +1,250 @@
+/* レポート一覧画面スタイル */
+
+body {
+    background: #f5f3f0;
+}
+
+/* 検索コンテナ */
+.search-container {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 2px solid #d4c5b9;
+}
+
+.search-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #3d3d3d;
+    margin: 0 0 16px 0;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.search-input {
+    padding: 10px 14px;
+    border: 2px solid #d4c5b9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #5a8f7b;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.search-btn {
+    padding: 10px 24px;
+    background: #5a8f7b;
+    color: white;
+    border: 2px solid #4a7a66;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-btn:hover {
+    background: #4a7a66;
+}
+
+.clear-btn {
+    padding: 10px 20px;
+    background: white;
+    color: #6b6b6b;
+    border: 2px solid #d4c5b9;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-btn:hover {
+    background: #f5f3f0;
+}
+
+/* レポートタイムライン */
+.reports-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.report-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4c5b9;
+    transition: all 0.2s;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.report-card:hover {
+    border-color: #5a8f7b;
+    transform: translateY(-2px);
+}
+
+.report-image {
+    width: 280px;
+    height: 180px;
+    background: #8b7355;
+    border-radius: 8px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.report-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.report-date {
+    font-size: 13px;
+    color: #6b6b6b;
+    font-weight: 500;
+}
+
+.report-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #3d3d3d;
+    margin: 0;
+}
+
+.report-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6b6b6b;
+}
+
+.report-body-preview {
+    color: #555;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.report-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: auto;
+    font-size: 13px;
+    color: #6b6b6b;
+}
+
+.report-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.btn-like {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn-like:hover {
+    background: #f5f3f0;
+}
+
+.like-icon {
+    font-size: 18px;
+}
+
+.like-count {
+    color: #6b6b6b;
+    font-weight: 600;
+}
+
+.report-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.tag {
+    padding: 4px 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #66bb6a;
+}
+
+/* FABボタン */
+.fab-button {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    background: #5a8f7b;
+    border-radius: 50%;
+    border: 4px solid #4a7a66;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.fab-button:hover {
+    background: #4a7a66;
+    transform: scale(1.05);
+}
+
+/* 空の状態 */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6b6b6b;
+}
+
+.empty-state svg {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #64748b;
+}
