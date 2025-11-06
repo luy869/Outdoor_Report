@@ -1,1 +1,13 @@
-fuel/app/logs/
+fuel/app/logs/*
+!fuel/app/logs/.gitkeep
+
+fuel/app/cache/*
+!fuel/app/cache/.gitkeep
+
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
+!public/assets/uploads/photos/.gitkeep
+
+*.log
+.DS_Store
+Thumbs.db
