@@ -286,6 +286,71 @@
 	.toggle-switch input:checked + .toggle-slider:before {
 		transform: translateX(24px);
 	}
+	.tag-input-container {
+		display: flex;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
+	.tag-input-container .form-input {
+		flex: 1;
+	}
+	.btn-add-tag {
+		padding: 12px 20px;
+		background: #5a8f7b;
+		color: white;
+		border: 2px solid #4a7a66;
+		border-radius: 6px;
+		cursor: pointer;
+		font-weight: 600;
+		transition: all 0.2s;
+		font-size: 14px;
+	}
+	.btn-add-tag:hover:not(:disabled) {
+		background: #4a7a66;
+		transform: translateY(-1px);
+	}
+	.btn-add-tag:disabled {
+		background: #d4c5b9;
+		border-color: #d4c5b9;
+		cursor: not-allowed;
+		color: #ffffff;
+	}
+	.tags-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 10px;
+	}
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 12px;
+		background: #e8f5f0;
+		color: #5a8f7b;
+		border-radius: 16px;
+		font-size: 13px;
+		font-weight: 500;
+		border: 1px solid #d4c5b9;
+	}
+	.tag-remove {
+		background: none;
+		border: none;
+		color: #5a8f7b;
+		font-size: 18px;
+		cursor: pointer;
+		padding: 0;
+		line-height: 1;
+		width: 18px;
+		height: 18px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: color 0.2s;
+	}
+	.tag-remove:hover {
+		color: #c85a54;
+	}
 </style>
 
 <div class="create-header">
@@ -408,14 +473,25 @@
 	</div>
 
 	<!-- タグセクション -->
-	<div class="form-section">
+	<div class="form-section" id="tag-section">
 		<h2 class="section-title">タグ</h2>
 		<div class="form-group">
-			<label class="form-label">レポートを分類するためのタグを追加（カンマ区切り）</label>
-			<?php echo Form::input('tags', Input::post('tags', isset($tags_string) ? $tags_string : ''), array(
-				'class' => 'form-input',
-				'placeholder' => '例: ハイキング, 自然, 旅行'
-			)); ?>
+			<label class="form-label">レポートを分類するためのタグを追加</label>
+			<div class="tag-input-container">
+				<input type="text" id="tag-input" class="form-input" 
+					   placeholder="タグを入力してEnter" 
+					   data-bind="value: newTag, valueUpdate: 'input', event: { keypress: addTagOnEnter }">
+				<button type="button" class="btn-add-tag" data-bind="click: addTag, enable: canAddTag">
+					追加
+				</button>
+			</div>
+			<div class="tags-container" data-bind="foreach: tags">
+				<span class="tag">
+					<span data-bind="text: $data"></span>
+					<button type="button" class="tag-remove" data-bind="click: $parent.removeTag">×</button>
+				</span>
+			</div>
+			<input type="hidden" name="tags" data-bind="value: tagsAsString">
 		</div>
 	</div>
 
@@ -438,8 +514,65 @@
 	<?php echo Form::close(); ?>
 </div>
 
+<script src="https://unpkg.com/knockout@3.5.1/build/output/knockout-latest.js"></script>
+
 <script>
 const MAX_IMAGES = 4;
+
+// Knockout.js ViewModel
+function TagViewModel() {
+	var self = this;
+	
+	self.tags = ko.observableArray([]);
+	self.newTag = ko.observable('');
+	
+	self.canAddTag = ko.computed(function() {
+		var tag = self.newTag().trim();
+		return tag.length > 0 && self.tags().indexOf(tag) === -1;
+	});
+	
+	self.tagsAsString = ko.computed(function() {
+		return self.tags().join(',');
+	});
+	
+	self.addTag = function() {
+		var tag = self.newTag().trim();
+		if (tag && self.tags().indexOf(tag) === -1) {
+			self.tags.push(tag);
+			self.newTag('');
+		}
+	};
+	
+	self.addTagOnEnter = function(data, event) {
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			self.addTag();
+			return false;
+		}
+		return true;
+	};
+	
+	self.removeTag = function(tag) {
+		self.tags.remove(tag);
+	};
+}
+
+// ViewModelの初期化
+var tagViewModel = new TagViewModel();
+
+// 既存のタグをロード
+<?php if (!empty($tags_string)): ?>
+var existingTags = <?php echo json_encode(explode(',', $tags_string)); ?>;
+existingTags.forEach(function(tag) {
+	var trimmedTag = tag.trim();
+	if (trimmedTag) {
+		tagViewModel.tags.push(trimmedTag);
+	}
+});
+<?php endif; ?>
+
+// Knockout.jsバインディングを適用
+ko.applyBindings(tagViewModel, document.getElementById('tag-section'));
 
 // 既存画像数をカウント
 function countExistingPhotos() {
