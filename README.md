@@ -65,7 +65,7 @@ cd ..
 # データベース作成
 docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 -e "CREATE DATABASE IF NOT EXISTS outdoor_reports CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# テーブル作成
+# テーブル作成（すべてのテーブルとカラムを含む）
 docker-compose -f docker/docker-compose.yml exec -T db mysql -uroot -p3556 outdoor_reports < sql_archive/00_create_tables.sql
 ```
 
