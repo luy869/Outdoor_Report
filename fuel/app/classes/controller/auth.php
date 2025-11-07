@@ -42,14 +42,12 @@ class Controller_Auth extends Controller_Template
 		if (Session::get('user_id'))
 		{
 			Response::redirect('report/index');
-		}
+	}
 
-		if (Input::method() == 'POST')
-		{
-			$email = Input::post('email');
-			$password = Input::post('password');
-
-			// Rate limiting
+	if (Input::method() === 'POST')
+	{
+		$email = Input::post('email');
+		$password = Input::post('password');			// Rate limiting
 			$login_attempts_key = 'login_attempts_' . md5($email);
 			$attempts = Session::get($login_attempts_key, 0);
 			$lockout_time = Session::get($login_attempts_key . '_time', 0);
@@ -120,7 +118,7 @@ class Controller_Auth extends Controller_Template
 
 	public function action_register()
 	{
-		if (Input::method() == 'POST')
+		if (Input::method() === 'POST')
 		{
 			$email = Input::post('email');
 			$username = Input::post('username');
@@ -152,7 +150,7 @@ class Controller_Auth extends Controller_Template
 				Session::set_flash('error', 'パスワードは8文字以上で入力してください');
 				Response::redirect('report/index');
 			}
-			if ($password != $password_confirm){
+			if ($password !== $password_confirm){
 				Session::set_flash('error', 'パスワードが一致しません');
 				Response::redirect('report/index');
 			}

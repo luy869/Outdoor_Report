@@ -9,7 +9,7 @@
 	</a>
 	<h1 class="page-title" style="margin: 0;"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
 	<div class="detail-actions">
-		<?php if ($report['user_id'] == Session::get('user_id')): ?>
+		<?php if ((int)$report['user_id'] === (int)Session::get('user_id')): ?>
 			<a href="/report/edit/<?php echo $report['id']; ?>" class="btn-icon" title="編集">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
 					<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -30,25 +30,20 @@
 </div>
 
 <div class="detail-container">
-	<?php if (!empty($report['photos']) && count($report['photos']) > 0): ?>
-		<!-- 複数枚の画像をギャラリー表示 -->
-		<div class="photo-gallery <?php echo count($report['photos']) == 1 ? 'single' : ''; ?>">
+	<?php if (!empty($report['photos'])): ?>
+		<div class="photo-gallery <?php echo count($report['photos']) === 1 ? 'single' : ''; ?>">
 			<?php foreach ($report['photos'] as $index => $photo): ?>
-				<div class="photo-gallery-item" onclick="openImageModal(<?php echo $index; ?>)">
-					<img src="<?php echo htmlspecialchars($photo['image_url'], ENT_QUOTES, 'UTF-8'); ?>" 
-					     alt="レポート画像 <?php echo $index + 1; ?>">
-					<?php if ($index == 0 && count($report['photos']) > 1): ?>
+				<div class="photo-item" onclick="openImageModal(<?php echo $index; ?>)">
+					<img src="<?php echo Security::htmlentities($photo['image_url']); ?>" 
+					     alt="Photo <?php echo $index + 1; ?>">
+					<?php if ($index === 0 && count($report['photos']) > 1): ?>
 						<div class="photo-count">+<?php echo count($report['photos']) - 1; ?> 枚</div>
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
 		</div>
-	<?php else: ?>
-		<img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200" 
-		     alt="レポート画像" 
-		     class="detail-hero-image">
 	<?php endif; ?>
-	
+
 	<div class="detail-content">
 		<h1 class="detail-title"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
 		
@@ -134,7 +129,10 @@
 		</p>
 		<div class="delete-modal-actions">
 			<button class="btn-modal btn-modal-cancel" onclick="closeDeleteModal()">キャンセル</button>
-			<a href="/report/delete/<?php echo $report['id']; ?>" class="btn-modal btn-modal-delete" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">削除する</a>
+			<form action="/report/delete/<?php echo $report['id']; ?>" method="post" style="display: inline;">
+				<?php echo Form::csrf(); ?>
+				<button type="submit" class="btn-modal btn-modal-delete">削除する</button>
+			</form>
 		</div>
 	</div>
 </div>

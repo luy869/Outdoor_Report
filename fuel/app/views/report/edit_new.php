@@ -143,7 +143,7 @@
 				<span class="toggle-hint">このレポートを他の人に見えるようにする</span>
 			</div>
 			<label class="toggle-switch">
-				<?php echo Form::checkbox('privacy', '0', Input::post('privacy', isset($privacy) ? ($privacy == 0) : true), array('id' => 'privacy-toggle')); ?>
+				<?php echo Form::checkbox('privacy', '0', Input::post('privacy', isset($privacy) ? ($privacy === 0) : true), array('id' => 'privacy-toggle')); ?>
 				<span class="toggle-slider"></span>
 			</label>
 		</div>
@@ -159,13 +159,13 @@
 const MAX_IMAGES = 4;
 
 function TagViewModel() {
-	var self = this;
+	const self = this;
 	
 	self.tags = ko.observableArray([]);
 	self.newTag = ko.observable('');
 	
 	self.canAddTag = ko.computed(function() {
-		var tag = self.newTag().trim();
+		const tag = self.newTag().trim();
 		return tag.length > 0 && self.tags().indexOf(tag) === -1;
 	});
 	
@@ -174,7 +174,7 @@ function TagViewModel() {
 	});
 	
 	self.addTag = function() {
-		var tag = self.newTag().trim();
+		const tag = self.newTag().trim();
 		if (tag && self.tags().indexOf(tag) === -1) {
 			self.tags.push(tag);
 			self.newTag('');
@@ -195,12 +195,12 @@ function TagViewModel() {
 	};
 }
 
-var tagViewModel = new TagViewModel();
+const tagViewModel = new TagViewModel();
 
 <?php if (!empty($tags_string)): ?>
-var existingTags = <?php echo json_encode(explode(',', $tags_string)); ?>;
+const existingTags = <?php echo json_encode(explode(',', $tags_string)); ?>;
 existingTags.forEach(function(tag) {
-	var trimmedTag = tag.trim();
+	const trimmedTag = tag.trim();
 	if (trimmedTag) {
 		tagViewModel.tags.push(trimmedTag);
 	}
