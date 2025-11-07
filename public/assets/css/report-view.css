@@ -78,32 +78,31 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
-    padding: 0;
+    padding: 24px;
+    background: #f9f7f5;
 }
 
 .photo-gallery.single {
     grid-template-columns: 1fr;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.photo-gallery-item {
+.photo-item {
     position: relative;
     aspect-ratio: 16/9;
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s;
+    background: #e5e3e1;
 }
 
-.photo-gallery.single .photo-gallery-item {
-    aspect-ratio: auto;
-    height: 400px;
-}
-
-.photo-gallery-item:hover {
+.photo-item:hover {
     transform: scale(1.02);
 }
 
-.photo-gallery-item img {
+.photo-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -116,9 +115,19 @@ body {
     background: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: 600;
+}
+
+.photo-gallery.single .photo-item {
+    aspect-ratio: auto;
+    max-height: 500px;
+}
+
+/* コンテンツ */
+.detail-content {
+    padding: 32px;
 }
 
 /* 画像拡大モーダル */
@@ -307,6 +316,9 @@ body {
     background: #e65100;
     color: white;
     border: 2px solid #d84315;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .btn-modal-delete:hover {

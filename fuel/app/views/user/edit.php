@@ -11,7 +11,13 @@
 	.edit-header {
 		display: flex;
 		justify-content: space-between;
-		align-items: center;
+		align-items		<button type="submit" class="btn-save">保存する</button>
+
+		<!-- パスワード変更機能は現在無効 -->
+		<!-- <div class="link-section">
+			/* <a href="/user/change_password" class="link-button">→ パスワードを変更する</a> */
+		</div> -->
+	</form>er;
 		margin-bottom: 32px;
 	}
 
@@ -206,7 +212,7 @@
 			<button type="submit" class="btn-save">保存する</button>
 
 			<div class="link-section">
-				<a href="/user/change_password" class="link-button">→ パスワードを変更する</a>
+				<!-- <a href="/user/change_password" class="link-button">→ パスワードを変更する</a> -->
 			</div>
 		</form>
 	</div>

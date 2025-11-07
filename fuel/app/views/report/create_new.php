@@ -143,11 +143,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 画像管理用の配列
-    var selectedFiles = [];
-    var MAX_IMAGES = 4;
+    let selectedFiles = [];
+    const MAX_IMAGES = 4;
     
     function ReportViewModel() {
-        var self = this;
+        const self = this;
         
         self.title = ko.observable('');
         self.visitDate = ko.observable('<?php echo date('Y-m-d'); ?>');
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         self.canAddTag = ko.computed(function() {
-            var tag = self.newTag().trim();
+            const tag = self.newTag().trim();
             return tag.length > 0 && self.tags().indexOf(tag) === -1;
         });
         
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         self.addTag = function() {
-            var tag = self.newTag().trim();
+            const tag = self.newTag().trim();
             if (tag && self.tags().indexOf(tag) === -1) {
                 self.tags.push(tag);
                 self.newTag('');
@@ -213,12 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    var viewModel = new ReportViewModel();
+    const viewModel = new ReportViewModel();
     ko.applyBindings(viewModel, document.getElementById('report-form'));
     
     // 画像追加処理
     document.getElementById('photos-input').addEventListener('change', function(e) {
-        var file = e.target.files[0];
+        const file = e.target.files[0];
         if (!file) return;
         
         if (!file.type.match('image.*')) {
@@ -240,23 +240,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function updateImagePreview() {
-        var container = document.getElementById('image-preview-container');
+        const container = document.getElementById('image-preview-container');
         container.innerHTML = '';
         
         selectedFiles.forEach(function(file, index) {
-            var previewItem = document.createElement('div');
+            const previewItem = document.createElement('div');
             previewItem.className = 'preview-item';
             
-            var img = document.createElement('img');
+            const img = document.createElement('img');
             img.className = 'preview-image';
             
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = function(e) {
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
             
-            var removeBtn = document.createElement('button');
+            const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'btn-remove-image';
             removeBtn.innerHTML = '×';
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 removeImage(index);
             };
             
-            var fileName = document.createElement('div');
+            const fileName = document.createElement('div');
             fileName.className = 'preview-filename';
             fileName.textContent = file.name;
             
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updatePreviewGallery() {
-        var gallery = document.getElementById('preview-gallery');
+        const gallery = document.getElementById('preview-gallery');
         if (!gallery) return;
         
         gallery.innerHTML = '';
@@ -295,18 +295,18 @@ document.addEventListener('DOMContentLoaded', function() {
         gallery.className = 'preview-gallery ' + (selectedFiles.length === 1 ? 'single' : '');
         
         selectedFiles.forEach(function(file, index) {
-            var item = document.createElement('div');
+            const item = document.createElement('div');
             item.className = 'preview-gallery-item';
             
-            var img = document.createElement('img');
-            var reader = new FileReader();
+            const img = document.createElement('img');
+            const reader = new FileReader();
             reader.onload = function(e) {
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
             
             if (index === 0 && selectedFiles.length > 1) {
-                var count = document.createElement('div');
+                const count = document.createElement('div');
                 count.className = 'preview-photo-count';
                 count.textContent = '+' + (selectedFiles.length - 1) + ' 枚';
                 item.appendChild(count);
@@ -324,8 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateHiddenInput() {
-        var hiddenInput = document.getElementById('photos-hidden');
-        var dataTransfer = new DataTransfer();
+        const hiddenInput = document.getElementById('photos-hidden');
+        const dataTransfer = new DataTransfer();
         
         selectedFiles.forEach(function(file) {
             dataTransfer.items.add(file);

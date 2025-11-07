@@ -260,12 +260,11 @@ class Controller_Report extends Controller_Template
     /**
      * レポート保存
      */
-    public function action_store()
+    /**
+     * POST専用: レポート新規作成
+     */
+    public function post_store()
     {
-        if (Input::method() !== 'POST') {
-            Response::redirect('report/create');
-        }
-
         $val = Report::validate('create');
 
         if ($val->run()) {
@@ -432,8 +431,8 @@ class Controller_Report extends Controller_Template
             Response::redirect('report');
         }
 
-        // 自分のレポートかチェック
-        if ($report->user_id != Session::get('user_id')) {
+        // 自分のレポートかチェック（型を明示的に変換）
+        if ((int)$report->user_id !== (int)Session::get('user_id')) {
             Session::set_flash('error', '編集権限がありません');
             Response::redirect('report');
         }
@@ -517,15 +516,15 @@ class Controller_Report extends Controller_Template
     /**
      * レポート更新
      */
-    public function action_update($id = null)
+    /**
+     * POST専用: レポート更新
+     */
+    public function post_update($id = null)
     {
-        if (Input::method() !== 'POST') {
-            Response::redirect('report');
-        }
-
         $report = Report::find($id);
 
-        if (!$report || $report->user_id != Session::get('user_id')) {
+        // 権限チェック（型を明示的に変換）
+        if (!$report || (int)$report->user_id !== (int)Session::get('user_id')) {
             Session::set_flash('error', '編集権限がありません');
             Response::redirect('report');
         }
@@ -564,7 +563,9 @@ class Controller_Report extends Controller_Template
                 $report->title = Input::post('title');
                 $report->body = Input::post('body');
                 $report->visit_date = Input::post('visit_date');
-                $report->privacy = Input::post('privacy') === '0' ? 0 : 1;  // '0'が送信されたら0(公開)、それ以外は1(非公開)
+                
+                // チェックボックスがチェックされている場合は'0'が送信される（公開）、されていない場合はnull（非公開=1）
+                $report->privacy = Input::post('privacy') === '0' ? 0 : 1;
                 $report->location_id = $location_id;
 
                 if ($report->save()) {
@@ -712,13 +713,16 @@ class Controller_Report extends Controller_Template
     /**
      * レポート削除
      */
-    public function action_delete($id = null)
+    /**
+     * POST専用: レポート削除
+     */
+    public function post_delete($id = null)
     {
         // ① レポートを取得
         $report = Report::find($id);
 
-        // ② 権限チェック
-        if (!$report || $report->user_id != Session::get('user_id')) {
+        // ② 権限チェック（型を明示的に変換）
+        if (!$report || (int)$report->user_id !== (int)Session::get('user_id')) {
             Session::set_flash('error', '削除権限がありません');
             Response::redirect('report');
         }
@@ -771,8 +775,10 @@ class Controller_Report extends Controller_Template
 
     /**
      * いいねをトグル（Ajax用）
+    /**
+     * POST専用: いいねのトグル
      */
-    public function action_toggle_like($report_id)
+    public function post_toggle_like($report_id)
     {
         // ログインチェック
         $user_id = Session::get('user_id');

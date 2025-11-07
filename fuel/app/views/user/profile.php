@@ -367,15 +367,13 @@
 						<div class="report-content">
 						<div class="report-header">
 							<div>
-								<h3 class="report-title"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-								<div class="report-date"><?php echo date('Y年m月d日', strtotime($report['visit_date'])); ?></div>
-							</div>
-							<span class="privacy-badge <?php echo $report['privacy'] == 0 ? 'privacy-public' : 'privacy-private'; ?>">
-								<?php echo $report['privacy'] == 0 ? '公開' : '非公開'; ?>
-							</span>
-						</div>							<p class="report-body"><?php echo htmlspecialchars($report['body'], ENT_QUOTES, 'UTF-8'); ?></p>
-
-							<?php if ($report['tags']): ?>
+						<h3 class="report-title"><?php echo htmlspecialchars($report['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+						<div class="report-date"><?php echo date('Y年m月d日', strtotime($report['visit_date'])); ?></div>
+					</div>
+					<span class="privacy-badge <?php echo $report['privacy'] === 0 ? 'privacy-public' : 'privacy-private'; ?>">
+						<?php echo $report['privacy'] === 0 ? '公開' : '非公開'; ?>
+					</span>
+				</div>							<p class="report-body"><?php echo htmlspecialchars($report['body'], ENT_QUOTES, 'UTF-8'); ?></p>							<?php if ($report['tags']): ?>
 								<div class="report-tags">
 									<?php foreach (explode(', ', $report['tags']) as $tag): ?>
 										<span class="tag">#<?php echo htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'); ?></span>
