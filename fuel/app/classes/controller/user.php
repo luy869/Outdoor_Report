@@ -35,11 +35,7 @@ class Controller_User extends Controller_Template
 		}
 
 		// ユーザー情報を取得
-		$user = DB::select()
-			->from('users')
-			->where('id', $user_id)
-			->execute()
-			->current();
+		$user = \Model\UserService::find_by_id($user_id);
 
 		if (!$user) {
 			Session::set_flash('error', 'ユーザーが見つかりません');
@@ -59,64 +55,13 @@ class Controller_User extends Controller_Template
 		$data['is_own_profile'] = ($user_id == Session::get('user_id'));
 
 		// 統計情報を取得
-		// 総投稿数
-		$total_reports = DB::select(DB::expr('COUNT(*) as count'))
-			->from('reports')
-			->where('user_id', $user_id)
-			->execute()
-			->current();
-		$data['total_reports'] = (int)$total_reports['count'];
-
-		// 公開投稿数
-		$public_reports = DB::select(DB::expr('COUNT(*) as count'))
-			->from('reports')
-			->where('user_id', $user_id)
-			->where('privacy', 0)
-			->execute()
-			->current();
-		$data['public_reports'] = (int)$public_reports['count'];
-
-		// 非公開投稿数
-		$data['private_reports'] = $data['total_reports'] - $data['public_reports'];
+		$stats = \Model\UserService::get_statistics($user_id);
+		$data['total_reports'] = $stats['total_reports'];
+		$data['public_reports'] = $stats['public_reports'];
+		$data['private_reports'] = $stats['private_reports'];
 
 		// ユーザーの投稿一覧を取得
-		// 自分のプロフィールの場合は全ての投稿、他人の場合は公開投稿のみ
-		$query = DB::select(
-				'reports.*',
-				DB::expr('GROUP_CONCAT(DISTINCT tags.name SEPARATOR ", ") as tags'),
-				DB::expr('(SELECT image_url FROM photos WHERE photos.report_id = reports.id LIMIT 1) as first_image')
-			)
-			->from('reports')
-			->join('report_tags', 'LEFT')
-			->on('reports.id', '=', 'report_tags.report_id')
-			->join('tags', 'LEFT')
-			->on('report_tags.tag_id', '=', 'tags.id')
-			->where('reports.user_id', $user_id)
-			->group_by('reports.id')
-			->order_by('reports.created_at', 'DESC');
-
-		// 他人のプロフィールの場合は公開投稿のみ
-		if (!$data['is_own_profile']) {
-			$query->where('reports.privacy', 0);
-		}
-
-		$reports_result = $query->execute();
-
-		$data['reports'] = array();
-		if ($reports_result) {
-			foreach ($reports_result as $report) {
-				$data['reports'][] = array(
-					'id' => (int)$report['id'],
-					'title' => (string)$report['title'],
-					'body' => (string)$report['body'],
-					'visit_date' => (string)$report['visit_date'],
-					'privacy' => (int)$report['privacy'],
-					'created_at' => (string)$report['created_at'],
-					'tags' => $report['tags'] ? (string)$report['tags'] : '',
-					'first_image' => $report['first_image'] ? (string)$report['first_image'] : ''
-				);
-			}
-		}
+		$data['reports'] = \Model\UserService::get_reports($user_id, $data['is_own_profile']);
 
 		$this->template->title = $data['username'] . 'のプロフィール';
 		$this->template->content = View::forge('user/profile', $data);
@@ -133,11 +78,7 @@ class Controller_User extends Controller_Template
 			Response::redirect('report/index');
 		}
 
-		$user = DB::select()
-			->from('users')
-			->where('id', $user_id)
-			->execute()
-			->current();
+		$user = \Model\UserService::find_by_id($user_id);
 
 		$data = array();
 		$data['username'] = (string)$user['username'];
@@ -205,10 +146,7 @@ class Controller_User extends Controller_Template
 			$update_data['avatar_url'] = $avatar_url;
 		}
 
-		DB::update('users')
-			->set($update_data)
-			->where('id', $user_id)
-			->execute();
+		\Model\UserService::update_profile($user_id, $update_data);
 
 		// セッションのユーザー名とアバターも更新
 		Session::set('username', $username);
@@ -253,11 +191,7 @@ class Controller_User extends Controller_Template
 		$new_password_confirm = Input::post('new_password_confirm');
 
 		// ユーザー情報を取得
-		$user = DB::select()
-			->from('users')
-			->where('id', $user_id)
-			->execute()
-			->current();
+		$user = \Model\UserService::find_by_id($user_id);
 
 		// 現在のパスワード確認
 		if (!password_verify($current_password, $user['password'])) {
@@ -283,10 +217,7 @@ class Controller_User extends Controller_Template
 
 		// パスワード更新
 		$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-		DB::update('users')
-			->set(array('password' => $hashed_password))
-			->where('id', $user_id)
-			->execute();
+		\Model\UserService::update_password($user_id, $hashed_password);
 
 		Session::set_flash('success', 'パスワードを変更しました');
 		Response::redirect('user/profile');
