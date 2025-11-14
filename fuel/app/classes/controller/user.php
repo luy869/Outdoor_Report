@@ -2,7 +2,12 @@
 /**
  * ユーザーコントローラー
  * 
- * ユーザープロフィールの表示・編集を管理
+ * ユーザープロフィールの表示・編集、パ	$data['avatar_url'] = isset($user['avatar_url']) ? (string)$user['avatar_url'] : '';
+
+	// 自分のプロフィールかどうか
+	$data['is_own_profile'] = ((int)$user_id === (int)Session::get('user_id'));
+
+	// 統計情報を取得を管理
  * 
  * @package    Outdoor_Report
  * @category   Controller
@@ -145,6 +150,9 @@ class Controller_User extends Controller_Template
 	}
 
 	/**
+	 * プロフィール更新処理
+	 */
+	/**
 	 * POST専用: プロフィール更新
 	 */
 	public function post_update()
@@ -175,7 +183,7 @@ class Controller_User extends Controller_Template
 
 			// ディレクトリがなければ作成
 			if (!is_dir($config['path'])) {
-				mkdir($config['path'], 0777, true);
+				mkdir($config['path'], 0755, true);
 			}
 
 			Upload::process($config);
@@ -208,86 +216,79 @@ class Controller_User extends Controller_Template
 			Session::set('avatar_url', $avatar_url);
 		}
 
-
-	Session::set_flash('success', 'プロフィールを更新しました');
-	Response::redirect('user/profile');
-}
-
-/*
- * パスワード変更機能は現在無効化されています
- */
-
-/*
-/**
- * パスワード変更フォーム
- *
-public function action_change_password()
-{
-	if (!Session::get('user_id')) {
-		Session::set_flash('error', 'ログインが必要です');
-		Response::redirect('report/index');
+		Session::set_flash('success', 'プロフィールを更新しました');
+		Response::redirect('user/profile');
 	}
 
-	$this->template->title = 'パスワード変更';
-	$this->template->content = View::forge('user/change_password');
-}
+	/**
+	 * パスワード変更フォーム
+	 */
+	public function action_change_password()
+	{
+		if (!Session::get('user_id')) {
+			Session::set_flash('error', 'ログインが必要です');
+			Response::redirect('report/index');
+		}
 
-/**
- * パスワード変更処理
- *
-/**
- * POST専用: パスワード更新
- *
-public function post_update_password()
-{
-	$user_id = Session::get('user_id');
-	if (!$user_id) {
-		Session::set_flash('error', 'ログインが必要です');
-		Response::redirect('report/index');
+		$this->template->title = 'パスワード変更';
+		$this->template->content = View::forge('user/change_password');
 	}
 
-	$current_password = Input::post('current_password');
-	$new_password = Input::post('new_password');
-	$new_password_confirm = Input::post('new_password_confirm');
+	/**
+	 * パスワード変更処理
+	 */
+	/**
+	 * POST専用: パスワード更新
+	 */
+	public function post_update_password()
+	{
+		$user_id = Session::get('user_id');
+		if (!$user_id) {
+			Session::set_flash('error', 'ログインが必要です');
+			Response::redirect('report/index');
+		}
 
-	// ユーザー情報を取得
-	$user = DB::select()
-		->from('users')
-		->where('id', $user_id)
-		->execute()
-		->current();
+		$current_password = Input::post('current_password');
+		$new_password = Input::post('new_password');
+		$new_password_confirm = Input::post('new_password_confirm');
 
-	// 現在のパスワード確認
-	if (!password_verify($current_password, $user['password'])) {
-		Session::set_flash('error', '現在のパスワードが正しくありません');
-		Response::redirect('user/change_password');
+		// ユーザー情報を取得
+		$user = DB::select()
+			->from('users')
+			->where('id', $user_id)
+			->execute()
+			->current();
+
+		// 現在のパスワード確認
+		if (!password_verify($current_password, $user['password'])) {
+			Session::set_flash('error', '現在のパスワードが正しくありません');
+			Response::redirect('user/change_password');
+		}
+
+		// 新しいパスワードのバリデーション
+		if (empty($new_password)) {
+			Session::set_flash('error', '新しいパスワードを入力してください');
+			Response::redirect('user/change_password');
+		}
+
+		if (strlen($new_password) < 8) {
+			Session::set_flash('error', 'パスワードは8文字以上で入力してください');
+			Response::redirect('user/change_password');
+		}
+
+		if ($new_password !== $new_password_confirm) {
+			Session::set_flash('error', '新しいパスワードが一致しません');
+			Response::redirect('user/change_password');
+		}
+
+		// パスワード更新
+		$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+		DB::update('users')
+			->set(array('password' => $hashed_password))
+			->where('id', $user_id)
+			->execute();
+
+		Session::set_flash('success', 'パスワードを変更しました');
+		Response::redirect('user/profile');
 	}
-
-	// 新しいパスワードのバリデーション
-	if (empty($new_password)) {
-		Session::set_flash('error', '新しいパスワードを入力してください');
-		Response::redirect('user/change_password');
-	}
-
-	if (strlen($new_password) < 8) {
-		Session::set_flash('error', 'パスワードは8文字以上で入力してください');
-		Response::redirect('user/change_password');
-	}
-
-	if ($new_password !== $new_password_confirm) {
-		Session::set_flash('error', '新しいパスワードが一致しません');
-		Response::redirect('user/change_password');
-	}
-
-	// パスワード更新
-	$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-	DB::update('users')
-		->set(array('password' => $hashed_password))
-		->where('id', $user_id)
-		->execute();
-
-	Session::set_flash('success', 'パスワードを変更しました');
-	Response::redirect('user/profile');
-}
-*/
 }
