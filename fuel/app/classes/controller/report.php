@@ -25,7 +25,7 @@ class Controller_Report extends Controller_Template
         $current_action = str_replace('action_', '', Request::active()->action);
 
         // ログインが必要なアクション
-        $login_required_actions = ['mypage', 'create', 'store', 'edit', 'update', 'delete'];
+        $login_required_actions = ['create', 'store', 'edit', 'update', 'delete'];
         
         // ログインが必要なアクションでログインしていない場合
         if (in_array($current_action, $login_required_actions) && !Session::get('user_id')) {
@@ -49,7 +49,7 @@ class Controller_Report extends Controller_Template
         $date_from = Input::get('date_from', '');
         $date_to = Input::get('date_to', '');
 
-        // クエリビルダー開始
+        // クエリビルダー開始（N+1問題を解消: locationもJOINで一緒に取得）
         $query = DB::select(
                 'reports.id',
                 'reports.title',
@@ -58,11 +58,14 @@ class Controller_Report extends Controller_Template
                 'reports.created_at',
                 'reports.user_id',
                 'reports.location_id',
-                'users.username'
+                'users.username',
+                array('locations.name', 'location_name')
             )
             ->from('reports')
             ->join('users', 'INNER')
             ->on('reports.user_id', '=', 'users.id')
+            ->join('locations', 'LEFT')
+            ->on('reports.location_id', '=', 'locations.id')
             ->where('reports.privacy', 0); // 公開のみ
 
         // キーワード検索（タイトルまたは本文）
@@ -99,62 +102,76 @@ class Controller_Report extends Controller_Template
 
         $query->order_by('reports.created_at', 'DESC');
 
-        $results = $query->execute();
+        $results = $query->execute()->as_array();
 
         $user_id = Session::get('user_id'); // ログインユーザーID
 
+        // N+1問題を解消: レポートIDを収集
+        $report_ids = array();
+        foreach ($results as $row) {
+            $report_ids[] = $row['id'];
+        }
+
+        // 写真を一括取得（N+1問題を解消）
+        $photos_map = array();
+        if (!empty($report_ids)) {
+            $photos_result = DB::select('report_id', 'image_url')
+                ->from('photos')
+                ->where('report_id', 'IN', $report_ids)
+                ->execute();
+            
+            foreach ($photos_result as $photo) {
+                if (!isset($photos_map[$photo['report_id']])) {
+                    $photos_map[$photo['report_id']] = $photo['image_url'];
+                }
+            }
+        }
+
+        // いいね数を一括取得（N+1問題を解消）
+        $likes_map = array();
+        if (!empty($report_ids)) {
+            $likes_result = DB::select('report_id', DB::expr('COUNT(*) as count'))
+                ->from('likes')
+                ->where('report_id', 'IN', $report_ids)
+                ->group_by('report_id')
+                ->execute();
+            
+            foreach ($likes_result as $like) {
+                $likes_map[$like['report_id']] = (int)$like['count'];
+            }
+        }
+
+        // ユーザーのいいね状態を一括取得（N+1問題を解消）
+        $user_likes_map = array();
+        if ($user_id && !empty($report_ids)) {
+            $user_likes_result = DB::select('report_id')
+                ->from('likes')
+                ->where('user_id', $user_id)
+                ->where('report_id', 'IN', $report_ids)
+                ->execute();
+            
+            foreach ($user_likes_result as $user_like) {
+                $user_likes_map[$user_like['report_id']] = true;
+            }
+        }
+
+        // データを組み立て
         $data['reports'] = array();
         foreach ($results as $row) {
-            // location情報を別途取得
-            $location_name = null;
-            if ($row['location_id']) {
-                $loc = DB::select('name')
-                    ->from('locations')
-                    ->where('id', $row['location_id'])
-                    ->execute()
-                    ->current();
-                $location_name = $loc ? $loc['name'] : null;
-            }
-
-            // 最初の写真を取得
-            $first_photo = DB::select('image_url')
-                ->from('photos')
-                ->where('report_id', $row['id'])
-                ->limit(1)
-                ->execute()
-                ->current();
-
-            // いいね数を取得
-            $like_count = DB::select(DB::expr('COUNT(*) as count'))
-                ->from('likes')
-                ->where('report_id', $row['id'])
-                ->execute()
-                ->get('count');
-
-            // ログインユーザーがいいねしているか確認
-            $user_liked = false;
-            if ($user_id) {
-                $user_like = DB::select()
-                    ->from('likes')
-                    ->where('user_id', $user_id)
-                    ->where('report_id', $row['id'])
-                    ->execute()
-                    ->as_array();
-                $user_liked = count($user_like) > 0;
-            }
-
+            $report_id = (int)$row['id'];
+            
             $data['reports'][] = array(
-                'id' => (int)$row['id'],
+                'id' => $report_id,
                 'title' => (string)$row['title'],
                 'body' => (string)$row['body'],
                 'visit_date' => (string)$row['visit_date'],
                 'created_at' => (string)$row['created_at'],
                 'username' => (string)$row['username'],
                 'user_id' => (int)$row['user_id'],
-                'location_name' => $location_name ? (string)$location_name : '',
-                'image_url' => $first_photo ? (string)$first_photo['image_url'] : null,
-                'like_count' => (int)$like_count,
-                'user_liked' => $user_liked,
+                'location_name' => isset($row['location_name']) ? (string)$row['location_name'] : '',
+                'image_url' => isset($photos_map[$report_id]) ? $photos_map[$report_id] : null,
+                'like_count' => isset($likes_map[$report_id]) ? $likes_map[$report_id] : 0,
+                'user_liked' => isset($user_likes_map[$report_id]),
             );
         }
 
@@ -314,57 +331,70 @@ class Controller_Report extends Controller_Template
                     $expense_items = Input::post('expense_item', array());
                     $expense_amounts = Input::post('expense_amount', array());
                     
-                    if (!empty($expense_items) && is_array($expense_items)) {
+                    // 早期リターン: 費用データがない場合はスキップ
+                    if (empty($expense_items) || !is_array($expense_items)) {
+                        // 何もしない（次の処理へ）
+                    } else {
                         foreach ($expense_items as $index => $item_name) {
-                            if (!empty($item_name) && !empty($expense_amounts[$index])) {
-                                DB::insert('expenses')
-                                    ->set(array(
-                                        'report_id' => $report_id,
-                                        'item_name' => $item_name,
-                                        'amount' => (int)$expense_amounts[$index],
-                                        'created_at' => date('Y-m-d H:i:s'),
-                                    ))
-                                    ->execute();
+                            // 早期continue: 無効なデータはスキップ
+                            if (empty($item_name) || empty($expense_amounts[$index])) {
+                                continue;
                             }
+                            
+                            DB::insert('expenses')
+                                ->set(array(
+                                    'report_id' => $report_id,
+                                    'item_name' => $item_name,
+                                    'amount' => (int)$expense_amounts[$index],
+                                    'created_at' => date('Y-m-d H:i:s'),
+                                ))
+                                ->execute();
                         }
                     }
                     
                     // タグ情報の保存
                     $tags_input = Input::post('tags', '');
-                    if (!empty($tags_input)) {
+                    
+                    // 早期リターン: タグがない場合はスキップ
+                    if (empty($tags_input)) {
+                        // 何もしない（次の処理へ）
+                    } else {
                         // カンマ区切りで分割
                         $tag_names = array_map('trim', explode(',', $tags_input));
                         
                         foreach ($tag_names as $tag_name) {
-                            if (!empty($tag_name)) {
-                                // 既存のタグを検索
-                                $tag = DB::select('id')
-                                    ->from('tags')
-                                    ->where('name', $tag_name)
-                                    ->execute()
-                                    ->current();
-                                
-                                if ($tag) {
-                                    $tag_id = $tag['id'];
-                                } else {
-                                    // 新しいタグを作成
-                                    $result = DB::insert('tags')
-                                        ->set(array(
-                                            'name' => $tag_name,
-                                            'created_at' => date('Y-m-d H:i:s'),
-                                        ))
-                                        ->execute();
-                                    $tag_id = $result[0];
-                                }
-                                
-                                // レポートとタグの関連付け
-                                DB::insert('report_tags')
+                            // 早期continue: 空のタグはスキップ
+                            if (empty($tag_name)) {
+                                continue;
+                            }
+                            
+                            // 既存のタグを検索
+                            $tag = DB::select('id')
+                                ->from('tags')
+                                ->where('name', $tag_name)
+                                ->execute()
+                                ->current();
+                            
+                            if ($tag) {
+                                $tag_id = $tag['id'];
+                            } else {
+                                // 新しいタグを作成
+                                $result = DB::insert('tags')
                                     ->set(array(
-                                        'report_id' => $report_id,
-                                        'tag_id' => $tag_id,
+                                        'name' => $tag_name,
+                                        'created_at' => date('Y-m-d H:i:s'),
                                     ))
                                     ->execute();
+                                $tag_id = $result[0];
                             }
+                            
+                            // レポートとタグの関連付け
+                            DB::insert('report_tags')
+                                ->set(array(
+                                    'report_id' => $report_id,
+                                    'tag_id' => $tag_id,
+                                ))
+                                ->execute();
                         }
                     }
                     
@@ -378,7 +408,7 @@ class Controller_Report extends Controller_Template
                         
                         // アップロードディレクトリが存在しない場合は作成
                         if (!is_dir($upload_config['path'])) {
-                            mkdir($upload_config['path'], 0777, true);
+                            mkdir($upload_config['path'], 0755, true);
                         }
                         
                         Upload::process($upload_config);
@@ -577,18 +607,24 @@ class Controller_Report extends Controller_Template
                     $expense_items = Input::post('expense_item', array());
                     $expense_amounts = Input::post('expense_amount', array());
                     
-                    if (!empty($expense_items) && is_array($expense_items)) {
+                    // 早期リターン: 費用データがない場合はスキップ
+                    if (empty($expense_items) || !is_array($expense_items)) {
+                        // 何もしない（次の処理へ）
+                    } else {
                         foreach ($expense_items as $index => $item_name) {
-                            if (!empty($item_name) && !empty($expense_amounts[$index])) {
-                                DB::insert('expenses')
-                                    ->set(array(
-                                        'report_id' => $id,
-                                        'item_name' => $item_name,
-                                        'amount' => (int)$expense_amounts[$index],
-                                        'created_at' => date('Y-m-d H:i:s'),
-                                    ))
-                                    ->execute();
+                            // 早期continue: 無効なデータはスキップ
+                            if (empty($item_name) || empty($expense_amounts[$index])) {
+                                continue;
                             }
+                            
+                            DB::insert('expenses')
+                                ->set(array(
+                                    'report_id' => $id,
+                                    'item_name' => $item_name,
+                                    'amount' => (int)$expense_amounts[$index],
+                                    'created_at' => date('Y-m-d H:i:s'),
+                                ))
+                                ->execute();
                         }
                     }
                     
@@ -599,36 +635,43 @@ class Controller_Report extends Controller_Template
                     
                     // タグ情報の保存
                     $tags_input = Input::post('tags', '');
-                    if (!empty($tags_input)) {
+                    
+                    // 早期リターン: タグがない場合はスキップ
+                    if (empty($tags_input)) {
+                        // 何もしない（次の処理へ）
+                    } else {
                         $tag_names = array_map('trim', explode(',', $tags_input));
                         
                         foreach ($tag_names as $tag_name) {
-                            if (!empty($tag_name)) {
-                                $tag = DB::select('id')
-                                    ->from('tags')
-                                    ->where('name', $tag_name)
-                                    ->execute()
-                                    ->current();
-                                
-                                if ($tag) {
-                                    $tag_id = $tag['id'];
-                                } else {
-                                    $result = DB::insert('tags')
-                                        ->set(array(
-                                            'name' => $tag_name,
-                                            'created_at' => date('Y-m-d H:i:s'),
-                                        ))
-                                        ->execute();
-                                    $tag_id = $result[0];
-                                }
-                                
-                                DB::insert('report_tags')
+                            // 早期continue: 空のタグはスキップ
+                            if (empty($tag_name)) {
+                                continue;
+                            }
+                            
+                            $tag = DB::select('id')
+                                ->from('tags')
+                                ->where('name', $tag_name)
+                                ->execute()
+                                ->current();
+                            
+                            if ($tag) {
+                                $tag_id = $tag['id'];
+                            } else {
+                                $result = DB::insert('tags')
                                     ->set(array(
-                                        'report_id' => $id,
-                                        'tag_id' => $tag_id,
+                                        'name' => $tag_name,
+                                        'created_at' => date('Y-m-d H:i:s'),
                                     ))
                                     ->execute();
+                                $tag_id = $result[0];
                             }
+                            
+                            DB::insert('report_tags')
+                                ->set(array(
+                                    'report_id' => $id,
+                                    'tag_id' => $tag_id,
+                                ))
+                                ->execute();
                         }
                     }
                     
@@ -652,7 +695,7 @@ class Controller_Report extends Controller_Template
                         );
                         
                         if (!is_dir($upload_config['path'])) {
-                            mkdir($upload_config['path'], 0777, true);
+                            mkdir($upload_config['path'], 0755, true);
                         }
                         
                         Upload::process($upload_config);
@@ -766,17 +809,7 @@ class Controller_Report extends Controller_Template
     }
 
     /**
-     * マイページ - プロフィールページにリダイレクト
-     */
-    public function action_mypage()
-    {
-        Response::redirect('user/profile');
-    }
-
-    /**
      * いいねをトグル（Ajax用）
-    /**
-     * POST専用: いいねのトグル
      */
     public function post_toggle_like($report_id)
     {

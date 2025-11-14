@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/css/report-index.css">
+<?php echo Asset::css('report-index.css'); ?>
 
 <h1 class="page-title">タイムライン</h1>
 

@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="/assets/css/report-form.css">
-<link rel="stylesheet" href="/assets/css/report-create.css">
+<?php echo Asset::css('report-form.css'); ?>
+<?php echo Asset::css('report-create.css'); ?>
 
 <h2>✏️ 新規レポート作成</h2>
 

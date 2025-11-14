@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/css/report-form.css">
+<?php echo Asset::css('report-form.css'); ?>
 
 <div class="create-header">
 	<a href="/report/view/<?php echo isset($report_id) ? $report_id : ''; ?>" class="btn-cancel">キャンセル</a>

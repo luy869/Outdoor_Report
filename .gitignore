@@ -4,16 +4,9 @@ fuel/app/logs/*
 fuel/app/cache/*
 !fuel/app/cache/.gitkeep
 
-# アップロードファイル（画像など）を除外
 public/assets/uploads/*
 !public/assets/uploads/.gitkeep
-!public/assets/uploads/photos/
-public/assets/uploads/photos/*
 !public/assets/uploads/photos/.gitkeep
-
-# アバター画像を除外
-public/assets/img/avatars/*
-!public/assets/img/avatars/.gitkeep
 
 *.log
 .DS_Store

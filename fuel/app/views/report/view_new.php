@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/css/report-view.css">
+<?php echo Asset::css('report-view.css'); ?>
 
 <div class="detail-header">
 	<a href="/report/index" class="btn-back">
